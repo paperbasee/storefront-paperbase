@@ -1,12 +1,8 @@
-type PaperbaseErrorPayload =
-  | { detail: string; errors?: string[] }
-  | Record<string, string[] | string>;
-
 export class PaperbaseApiError extends Error {
   status: number;
-  payload?: PaperbaseErrorPayload;
+  payload?: unknown;
 
-  constructor(message: string, status: number, payload?: PaperbaseErrorPayload) {
+  constructor(message: string, status: number, payload?: unknown) {
     super(message);
     this.name = "PaperbaseApiError";
     this.status = status;
@@ -19,7 +15,7 @@ export function formatPaperbaseError(error: unknown): string {
     const payload = error.payload;
 
     if (payload && typeof payload === "object" && "detail" in payload && payload.detail) {
-      return payload.detail;
+      return String(payload.detail);
     }
     if (payload && typeof payload === "object") {
       const fieldMessages = Object.entries(payload)
@@ -51,7 +47,7 @@ export function stockValidationErrors(error: unknown): string[] {
     "errors" in error.payload &&
     Array.isArray(error.payload.errors)
   ) {
-    return error.payload.errors;
+    return error.payload.errors.map((entry) => String(entry));
   }
   return [];
 }

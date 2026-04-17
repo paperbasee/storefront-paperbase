@@ -163,7 +163,18 @@ export function searchProducts(q: string, page?: number) {
   });
 }
 
-export function listCategories(query?: { page?: number; tree?: "1" | "true" | "yes" }) {
+export function listCategories(query: {
+  page?: number;
+  tree: "1" | "true" | "yes";
+}): Promise<PaperbaseCategoryTreeNode[]>;
+export function listCategories(query?: {
+  page?: number;
+  tree?: undefined;
+}): Promise<PaginatedResponse<PaperbaseCategory>>;
+export function listCategories(query?: {
+  page?: number;
+  tree?: "1" | "true" | "yes";
+}): Promise<PaperbaseCategoryTreeNode[] | PaginatedResponse<PaperbaseCategory>> {
   const tree = query?.tree;
   if (tree) {
     return paperbaseGet<PaperbaseCategoryTreeNode[]>("categories/", {
