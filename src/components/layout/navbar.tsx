@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 
 import { AccountNavLink } from "@/components/common/account-nav-link";
 import { CartPanelHost, CartTrigger, MobileFloatingCartButton, MobileScrollToTopButton } from "@/components/common/cart-drawer-trigger";
-import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { Link } from "@/i18n/routing";
 import { DesktopCategoryMegaNav } from "@/components/layout/desktop-category-mega-nav";
 import { HeaderSearch } from "@/components/layout/header-search";
@@ -94,9 +93,6 @@ export async function Navbar() {
             <div className="hidden lg:block">
               <p className="text-[11px] uppercase tracking-wide text-white/75">{common("callUsNow")}</p>
               <p className="text-sm font-semibold">{store.phone}</p>
-            </div>
-            <div className="hidden md:block">
-              <LanguageSwitcher />
             </div>
             <AccountNavLink variant="desktop" />
             <CartTrigger variant="desktop" />

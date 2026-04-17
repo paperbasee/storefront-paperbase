@@ -5,6 +5,9 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "radix-ui", "next-intl"],
+  },
   images: {
     remotePatterns: [
       {

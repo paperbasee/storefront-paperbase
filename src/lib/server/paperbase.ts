@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { getServerPaperbaseConfig } from "@/lib/server/config";
 import { PaperbaseApiError } from "@/lib/api/paperbase-errors";
 import type {
@@ -122,11 +124,12 @@ export function paperbasePost<T>(
   return requestOnce<T>("POST", path, options);
 }
 
-export function getStorePublic() {
-  return paperbaseGet<PaperbaseStorePublic>("store/public/", {
+/** Per-request deduped: layout + Navbar + Footer all resolve to a single backend fetch. */
+export const getStorePublic = cache(() =>
+  paperbaseGet<PaperbaseStorePublic>("store/public/", {
     next: { revalidate: 300 },
-  });
-}
+  }),
+);
 
 export function listProducts(query?: {
   page?: number;
@@ -163,6 +166,14 @@ export function searchProducts(q: string, page?: number) {
   });
 }
 
+/** Per-request deduped tree fetch (Navbar + pages all share one call). */
+const getCategoryTreeCached = cache(() =>
+  paperbaseGet<PaperbaseCategoryTreeNode[]>("categories/", {
+    query: { tree: "1" },
+    next: { revalidate: 120 },
+  }),
+);
+
 export function listCategories(query: {
   page?: number;
   tree: "1" | "true" | "yes";
@@ -177,10 +188,7 @@ export function listCategories(query?: {
 }): Promise<PaperbaseCategoryTreeNode[] | PaginatedResponse<PaperbaseCategory>> {
   const tree = query?.tree;
   if (tree) {
-    return paperbaseGet<PaperbaseCategoryTreeNode[]>("categories/", {
-      query: { tree },
-      next: { revalidate: 120 },
-    });
+    return getCategoryTreeCached();
   }
   return paperbaseGet<PaginatedResponse<PaperbaseCategory>>("categories/", {
     query,
@@ -198,18 +206,18 @@ export function getCatalogFilters() {
   });
 }
 
-export function getBanners(slot?: PaperbaseBannerSlot) {
-  return paperbaseGet<PaperbaseBanner[]>("banners/", {
+export const getBanners = cache((slot?: PaperbaseBannerSlot) =>
+  paperbaseGet<PaperbaseBanner[]>("banners/", {
     query: { slot },
     next: { revalidate: 120 },
-  });
-}
+  }),
+);
 
-export function getActiveNotifications() {
-  return paperbaseGet<PaperbaseNotification[]>("notifications/active/", {
+export const getActiveNotifications = cache(() =>
+  paperbaseGet<PaperbaseNotification[]>("notifications/active/", {
     next: { revalidate: 120 },
-  });
-}
+  }),
+);
 
 export function getShippingZones() {
   return paperbaseGet<PaperbaseShippingZone[]>("shipping/zones/");

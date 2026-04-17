@@ -3,18 +3,19 @@
 import { UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/routing";
+
 type AccountNavLinkProps = {
   variant: "mobile" | "desktop";
 };
 
-/** Stub account entry (no auth yet); matches cart trigger sizing on mobile/desktop. */
+/** Account area placeholder until auth is added. */
 export function AccountNavLink({ variant }: AccountNavLinkProps) {
   const t = useTranslations("nav");
 
   const link = (
-    <a
-      href="#"
-      onClick={(e) => e.preventDefault()}
+    <Link
+      href="/account"
       aria-label={t("account")}
       className={
         variant === "mobile"
@@ -23,7 +24,7 @@ export function AccountNavLink({ variant }: AccountNavLinkProps) {
       }
     >
       <UserRound className="size-[26px] shrink-0" strokeWidth={1.75} aria-hidden />
-    </a>
+    </Link>
   );
 
   if (variant === "mobile") {

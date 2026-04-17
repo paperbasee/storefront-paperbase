@@ -34,12 +34,19 @@ export function CartPanel({ open, onClose }: CartPanelProps) {
   return (
     <aside className="fixed inset-0 z-50 bg-black/40" onClick={onClose} role="presentation">
       <div
-        className="ml-auto flex h-full w-full max-w-md flex-col bg-surface p-5 shadow-xl"
+        className="ml-auto flex h-full min-h-0 w-full max-w-md flex-col bg-surface px-5 pb-5 pt-[max(1.25rem,env(safe-area-inset-top,0px))] shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between pb-1">
-          <h2 className="text-xl font-semibold text-text">{t("title")}</h2>
-          <Button variant="ghost" size="sm" onClick={onClose} aria-label={common("close")}>
+        <div className="-mx-5 mb-3 flex items-center justify-between gap-3 border-b border-neutral-200/80 bg-surface px-5 pb-3">
+          <h2 className="min-w-0 flex-1 text-xl font-semibold text-text">{t("title")}</h2>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            aria-label={common("close")}
+            className="size-9 min-h-9 min-w-9 shrink-0 border-0 bg-transparent text-neutral-700 shadow-none hover:bg-neutral-100/80 hover:text-neutral-950"
+          >
             <X className="size-5 shrink-0" strokeWidth={2} aria-hidden />
           </Button>
         </div>
@@ -51,7 +58,7 @@ export function CartPanel({ open, onClose }: CartPanelProps) {
             {t("empty")}
           </p>
         ) : (
-          <div className="flex flex-1 flex-col gap-2 overflow-auto">
+          <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto">
             {items.map((item) => {
               const imageSrc = resolveStorefrontImageUrl(item.image_url);
               const variantPairs = parseVariantAttributePairs(item.variant_details);
@@ -124,28 +131,30 @@ export function CartPanel({ open, onClose }: CartPanelProps) {
           </div>
         )}
 
-        <div className="mt-4 bg-white/80 pt-4">
-          <p className="price-display-eyebrow-neutral">{t("subtotal")}</p>
+        <div className="mt-4 shrink-0 bg-white/80 pt-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            {t("subtotal")}
+          </p>
           <div className="mt-2 flex items-end justify-between gap-3">
             <p className="text-sm text-text/75">{t("items", { count: itemCount })}</p>
             <p className="price-display-total shrink-0 leading-none">{formatMoney(subtotal, locale)}</p>
           </div>
           <div className="mb-4 mt-4 h-px bg-neutral-200/80" aria-hidden />
-          <div className="grid gap-2">
+          <div className="grid gap-3">
             {items.length === 0 ? (
-              <Button variant="accent" disabled>
+              <Button variant="accent" size="md" disabled className="w-full">
                 {t("checkout")}
               </Button>
             ) : (
               <Link
                 href="/checkout"
                 onClick={onClose}
-                className={cn(buttonVariants({ variant: "accent", size: "md" }), "w-full")}
+                className={cn(buttonVariants({ variant: "accent", size: "md" }), "inline-flex w-full justify-center")}
               >
                 {t("checkout")}
               </Link>
             )}
-            <Button variant="primary" onClick={clear} disabled={items.length === 0}>
+            <Button variant="primary" size="md" className="w-full" onClick={clear} disabled={items.length === 0}>
               {t("clear")}
             </Button>
           </div>

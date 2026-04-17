@@ -1,5 +1,10 @@
+import { Minus, Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+const stepperBtnClass =
+  "min-w-9 px-0 text-neutral-900 hover:bg-neutral-100 hover:text-neutral-950 [&_svg]:text-neutral-900";
 
 type QuantityStepperProps = {
   quantity: number;
@@ -28,7 +33,7 @@ export function QuantityStepper({
   if (layout === "segmented") {
     const segmentBtn = (side: "left" | "right") =>
       cn(
-        "flex h-10 w-10 shrink-0 items-center justify-center border-0 bg-white text-lg font-normal leading-none text-neutral-800 transition-colors focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-neutral-400",
+        "flex h-10 w-10 shrink-0 items-center justify-center border-0 bg-white text-neutral-900 transition-colors focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-neutral-400 [&_svg]:size-[18px] [&_svg]:shrink-0 [&_svg]:stroke-[2.5]",
         side === "left" && "border-e border-neutral-200",
         decrementDisabled && side === "left"
           ? "cursor-not-allowed opacity-40"
@@ -52,9 +57,7 @@ export function QuantityStepper({
           disabled={decrementDisabled}
           aria-label={decreaseLabel}
         >
-          <span className="block pb-0.5" aria-hidden>
-            −
-          </span>
+          <Minus aria-hidden />
         </button>
         <span className="flex min-w-[2.75rem] items-center justify-center border-e border-neutral-200 bg-white px-2 tabular-nums text-sm font-medium text-neutral-900">
           {quantity}
@@ -66,16 +69,14 @@ export function QuantityStepper({
           disabled={incrementDisabled}
           aria-label={increaseLabel}
         >
-          <span className="block pb-0.5" aria-hidden>
-            +
-          </span>
+          <Plus aria-hidden />
         </button>
       </div>
     );
   }
 
   return (
-    <div className={cn("inline-flex items-center gap-2", className)}>
+    <div className={cn("inline-flex items-center gap-1", className)}>
       <Button
         type="button"
         variant="ghost"
@@ -83,10 +84,11 @@ export function QuantityStepper({
         onClick={onDecrement}
         disabled={decrementDisabled}
         aria-label={decreaseLabel}
+        className={stepperBtnClass}
       >
-        -
+        <Minus className="size-4 shrink-0 stroke-[2.5]" aria-hidden />
       </Button>
-      <span className="min-w-6 text-center text-sm text-text">{quantity}</span>
+      <span className="min-w-6 text-center text-sm font-medium tabular-nums text-neutral-900">{quantity}</span>
       <Button
         type="button"
         variant="ghost"
@@ -94,8 +96,9 @@ export function QuantityStepper({
         onClick={onIncrement}
         disabled={incrementDisabled}
         aria-label={increaseLabel}
+        className={stepperBtnClass}
       >
-        +
+        <Plus className="size-4 shrink-0 stroke-[2.5]" aria-hidden />
       </Button>
     </div>
   );

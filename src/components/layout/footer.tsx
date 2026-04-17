@@ -17,9 +17,11 @@ function TikTokIcon({ className }: { className?: string }) {
 }
 
 export async function Footer() {
-  const t = await getTranslations("footer");
-  const common = await getTranslations("common");
-  const store = await getStorefrontStorePublic();
+  const [t, common, store] = await Promise.all([
+    getTranslations("footer"),
+    getTranslations("common"),
+    getStorefrontStorePublic(),
+  ]);
   const year = new Date().getFullYear();
 
   const socialClass =
@@ -80,66 +82,62 @@ export async function Footer() {
             </h2>
             <ul className="list-none space-y-2.5 p-0">
               <li>
-                <a href="#" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
+                <Link href="/account" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
                   {t("customerAccount")}
-                </a>
+                </Link>
               </li>
               <li>
-                <Link href="/checkout" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
+                <Link href="/cart" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
                   {t("customerCart")}
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
+                <Link href="/wishlist" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
                   {t("customerWishlist")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
+                <Link href="/blog" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
                   {t("customerBlog")}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
 
           <div>
             <h2 className="mb-5 text-sm font-bold uppercase tracking-wide text-neutral-900">
-              {t("information")}
+              <Link href="/information" className="underline-offset-4 hover:underline">
+                {t("information")}
+              </Link>
             </h2>
             <ul className="list-none space-y-2.5 p-0">
               <li>
-                <a
-                  href={store.social_links.website || "#"}
-                  className="text-sm text-neutral-900 underline-offset-2 hover:underline"
-                >
+                <Link href="/about-us" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
                   {t("infoAbout")}
-                </a>
+                </Link>
               </li>
               <li>
-                <Link href="/support" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
+                <Link href="/contact-us" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
                   {t("infoContact")}
                 </Link>
               </li>
               <li>
-                <a
-                  href={store.policy_urls.privacy || "#"}
-                  className="text-sm text-neutral-900 underline-offset-2 hover:underline"
-                >
+                <Link href="/privacy-policy" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
                   {t("infoPrivacy")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href={store.policy_urls.returns || "#"}
+                <Link href="/return-refund" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
+                  {t("infoReturns")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/cancellation-policy"
                   className="text-sm text-neutral-900 underline-offset-2 hover:underline"
                 >
-                  {t("infoReturns")}
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-neutral-900 underline-offset-2 hover:underline">
                   {t("infoCancellation")}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

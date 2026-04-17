@@ -77,9 +77,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       />
       <div
         lang={activeLocale}
-        className={`${poppins.variable} flex min-h-screen flex-col bg-white ${
-          activeLocale === "bn" ? "font-bn" : "font-sans-en"
-        }`}
+        className={`${poppins.variable} flex min-h-screen flex-col bg-white font-sans-en`}
       >
         <Navbar />
         <main className="flex-1">{children}</main>

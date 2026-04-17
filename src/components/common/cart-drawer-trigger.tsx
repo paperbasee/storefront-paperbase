@@ -38,8 +38,8 @@ export function CartTrigger({ variant }: CartTriggerProps) {
       aria-label={t("cart")}
       className={
         variant === "mobile"
-          ? "h-10 w-10 shrink-0 border-0 bg-transparent p-0 text-white hover:bg-white/10 md:hidden"
-          : "border-0 bg-transparent p-2 text-white hover:bg-white/10"
+          ? "h-10 w-10 shrink-0 cursor-pointer border-0 bg-transparent p-0 text-white hover:bg-white/10 hover:text-white md:hidden [&_svg]:text-white"
+          : "cursor-pointer border-0 bg-transparent p-2 text-white hover:bg-white/10 hover:text-white [&_svg]:text-white"
       }
     >
       <span className="relative inline-flex">
@@ -98,7 +98,7 @@ export function MobileFloatingCartButton() {
       type="button"
       onClick={() => openCartPanel()}
       aria-label={t("cart")}
-      className="fixed z-40 flex size-14 items-center justify-center rounded-full border border-white/15 bg-header text-white shadow-lg transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 md:hidden"
+      className="fixed z-40 flex size-14 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-header text-white shadow-lg transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 md:hidden [&_svg]:text-white"
       style={{
         bottom: "max(1rem, env(safe-area-inset-bottom, 0px))",
         right: "max(1rem, env(safe-area-inset-right, 0px))",

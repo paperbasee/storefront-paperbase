@@ -136,7 +136,7 @@ export function CheckoutShippingView() {
   useEffect(() => {
     let mounted = true;
     async function loadPricing() {
-      if (!cartItems.length) {
+      if (!cartItems.length || !selectedZone) {
         return;
       }
       try {

@@ -180,6 +180,21 @@
     "paymentStubBody": "Payment processing is not connected yet. This is a preview step only.",
     "backToShipping": "Back to shipping"
   },
+  "placeholderPages": {
+    "message": "This page is not ready yet. We will update it soon.",
+    "titles": {
+      "account": "Account",
+      "cart": "Cart",
+      "wishlist": "Wishlist",
+      "blog": "Blog",
+      "information": "Information",
+      "aboutUs": "About us",
+      "contactUs": "Contact us",
+      "privacyPolicy": "Privacy policy",
+      "returnRefund": "Return & refund",
+      "cancellationPolicy": "Cancellation policy"
+    }
+  },
   "footer": {
     "copyright": "All rights reserved.",
     "contact": "Contact",
@@ -211,6 +226,18 @@
     "notFoundTitle": "Page not found",
     "notFoundDescription": "The page you requested does not exist.",
     "goHome": "Back to home"
+  },
+  "variantModal": {
+    "title": "Select options",
+    "loading": "Loading product details…",
+    "loadError": "Could not load product. Please try again.",
+    "retry": "Retry",
+    "addToCart": "Add to Cart",
+    "selectAllOptions": "Please select all options",
+    "unavailableCombination": "This combination is not available",
+    "onlyLeft": "Only {count} left in stock",
+    "inStock": "In stock",
+    "yourPrice": "Select options to see price"
   },
   "errors": {
     "title": "Something went wrong",

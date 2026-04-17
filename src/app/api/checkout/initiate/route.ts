@@ -12,11 +12,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = (await request.json()) as PaperbasePricingBreakdownRequest;
+    const body = (await request.json()) as PaperbasePricingBreakdownRequest & Record<string, unknown>;
     if (!body?.items || !Array.isArray(body.items) || body.items.length === 0) {
       return Response.json({ detail: "items must be a non-empty array." }, { status: 400 });
     }
-    const result = await pricingBreakdown(body);
+    const sanitised: PaperbasePricingBreakdownRequest = {
+      items: body.items.map(({ product_public_id, variant_public_id, quantity }) => ({
+        product_public_id,
+        ...(variant_public_id ? { variant_public_id } : {}),
+        quantity,
+      })),
+      ...(body.shipping_zone_public_id ? { shipping_zone_public_id: body.shipping_zone_public_id } : {}),
+      ...(body.shipping_method_public_id ? { shipping_method_public_id: body.shipping_method_public_id } : {}),
+    };
+    const result = await pricingBreakdown(sanitised);
     return Response.json(result);
   } catch (error) {
     if (error instanceof SyntaxError) {

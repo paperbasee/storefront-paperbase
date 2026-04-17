@@ -112,10 +112,6 @@
     @apply m-0 min-w-0 overflow-x-clip antialiased bg-background text-foreground;
   }
 
-  .font-bn {
-    font-family: "Noto Sans Bengali", "Hind Siliguri", "Nirmala UI", sans-serif;
-  }
-
   .font-sans-en {
     font-family: "Sarar English Figures", var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   }
