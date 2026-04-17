@@ -85,6 +85,8 @@
     "brandMarkAria": "Brand",
     "producerCodeLabel": "Manufacturer code",
     "skuLabel": "SKU",
+    "skuSelectOptions": "Select options to view SKU",
+    "selectOptionsToOrder": "Select options",
     "nowLabel": "Now",
     "effectivePriceLabel": "Your price",
     "wasLabel": "Was",
