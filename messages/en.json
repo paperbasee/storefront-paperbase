@@ -1,0 +1,181 @@
+{
+  "metadata": {
+    "title": "Sarar Global Storefront",
+    "description": "Premium products crafted for everyday life."
+  },
+  "common": {
+    "brand": "Sarar Global",
+    "currency": "USD",
+    "language": "Language",
+    "empty": "Nothing to show yet.",
+    "close": "Close"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "flashSale": "Flash Sale",
+    "openSearch": "Open search"
+  },
+  "home": {
+    "headline": "Royal quality for modern living",
+    "subheadline": "Discover curated essentials with elegant design and trusted quality.",
+    "cta": "Shop now",
+    "sectionTitle": "Featured products",
+    "viewMore": "View more",
+    "emptyProducts": "No products are available right now."
+  },
+  "product": {
+    "addToCart": "Add to cart",
+    "buyNow": "Buy Now",
+    "orderNow": "Order now",
+    "newBadge": "New",
+    "outOfStock": "Out of stock",
+    "startingFrom": "Starting from",
+    "increaseQuantity": "Increase quantity",
+    "decreaseQuantity": "Decrease quantity"
+  },
+  "products": {
+    "royalSapphireKettle": "Royal Sapphire Kettle",
+    "amberCeramicSet": "Amber Ceramic Set",
+    "heritageLinenCover": "Heritage Linen Cover"
+  },
+  "productCard": {
+    "sold": "{count, plural, one {# sold} other {# sold}}",
+    "ratingValue": "{value}/5.0",
+    "locations": {
+      "royalSapphireKettle": "Bangladesh, Dhaka",
+      "amberCeramicSet": "Bangladesh, Chattogram",
+      "heritageLinenCover": "Bangladesh, Sylhet"
+    },
+    "stores": {
+      "sararOfficial": "Sarar Official Store"
+    }
+  },
+  "productDetail": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProducts": "Products",
+    "categoryKitchen": "Kitchen essentials",
+    "categoryTableware": "Tableware",
+    "categoryHomeTextiles": "Home textiles",
+    "brandMark": "Sarar",
+    "brandMarkAria": "Brand",
+    "producerCodeLabel": "Manufacturer code",
+    "skuLabel": "SKU",
+    "nowLabel": "Now",
+    "wasLabel": "Was",
+    "priceDiscount": "(-{percent}%)",
+    "colorLabel": "Color",
+    "sizeLabel": "Size",
+    "colorName_cream": "Cream",
+    "colorName_graphite": "Graphite",
+    "chooseOptionsHint": "Choose your options above before ordering.",
+    "shareProduct": "Share this product",
+    "swatchCream": "Cream finish",
+    "swatchGraphite": "Graphite finish",
+    "sectionProductDetails": "Product details"
+  },
+  "productCopy": {
+    "royalSapphireKettle": {
+      "byline": "Curated by Sarar Global design studio",
+      "description": "A refined kettle collection piece with sapphire-toned accents and a balanced pour. Designed for daily rituals and quiet countertops, it pairs durable construction with a silhouette that feels at home in both modern kitchens and warm, traditional spaces.",
+      "details": "Stainless steel body with heat-resistant handle. Boil-dry protection and wide opening for easy cleaning. Compatible with induction and conventional cooktops where applicable.",
+      "dimensions": "Capacity 1.7 L. Overall height 25 cm, base diameter 16 cm. Cord length approximately 75 cm.",
+      "care": "Hand wash recommended. Descale periodically with a food-safe kettle descaler. Avoid abrasive pads on exterior finishes.",
+      "sustainability": "Packaging uses recycled paper where possible. Designed for longevity to reduce replacement waste."
+    },
+    "amberCeramicSet": {
+      "byline": "Tableware collaboration series",
+      "description": "Stackable ceramic forms in a warm amber glaze—made for gatherings that run long and tables that deserve something special. Each piece is finished by hand so subtle variation is part of the charm.",
+      "details": "High-fire stoneware. Microwave and dishwasher safe unless noted on care card. Set includes coordinated plates and bowls sized for everyday dining.",
+      "dimensions": "Dinner plate 27 cm, side plate 21 cm, bowl 16 cm diameter × 6 cm height. Weights vary by piece; full set nests for compact storage.",
+      "care": "Dishwasher safe on a gentle cycle. Avoid sudden temperature shocks. Use wooden or silicone utensils to preserve glaze over time.",
+      "sustainability": "Glazes formulated to reduce heavy metals. Fired in efficient kilns; durable ware meant to replace single-use serving options."
+    },
+    "heritageLinenCover": {
+      "byline": "Soft goods atelier",
+      "description": "Breathable linen with a relaxed drape and a heritage weave that softens with every wash. Ideal for layering on sofas, beds, or reading chairs when you want texture without fuss.",
+      "details": "Pre-washed linen blend for reduced shrinkage. Mitered corners and reinforced seams. Natural fibers may show gentle slubs—this is expected.",
+      "dimensions": "Throw size 130 × 180 cm. Folded depth approximately 6 cm depending on storage.",
+      "care": "Machine wash cold on delicate. Line dry or tumble dry low. Iron on medium if desired; steam works well for relaxed styling.",
+      "sustainability": "Linen is a lower-impact fiber versus many synthetics. Designed to age gracefully so you keep—and use—it for years."
+    }
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is currently empty.",
+    "subtotal": "Subtotal",
+    "items": "{count, plural, =0 {0 items} one {# item} other {# items}}",
+    "remove": "Remove",
+    "clear": "Clear cart",
+    "checkout": "Proceed to checkout"
+  },
+  "checkout": {
+    "metaTitle": "Checkout",
+    "metaDescription": "Enter your shipping details and review your order.",
+    "paymentMetaTitle": "Payment",
+    "paymentMetaDescription": "Complete your payment (preview).",
+    "breadcrumbCart": "Cart",
+    "breadcrumbShipping": "Shipping",
+    "breadcrumbPayment": "Payment",
+    "shippingAddress": "Shipping Address",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone number",
+    "city": "City",
+    "state": "State",
+    "dialOption_bd": "BD +880",
+    "shippingMethod": "Shipping Method",
+    "freeShipping": "Free Shipping",
+    "freeShippingDays": "7–20 days",
+    "expressShipping": "Express Shipping",
+    "expressShippingDays": "1–3 days",
+    "summaryTitle": "Your Cart",
+    "subtotal": "Subtotal",
+    "shippingLine": "Shipping",
+    "total": "Total",
+    "continueToPayment": "Continue to Payment",
+    "empty": "Your cart is empty. Add items before you can check out.",
+    "continueShopping": "Continue shopping",
+    "paymentStubHeading": "Payment",
+    "paymentStubBody": "Payment processing is not connected yet. This is a preview step only.",
+    "backToShipping": "Back to shipping"
+  },
+  "footer": {
+    "copyright": "All rights reserved.",
+    "contact": "Contact",
+    "customer": "Customer",
+    "information": "Information",
+    "socialLinks": "Social links",
+    "addressLabel": "Address",
+    "addressLine": "Dhaka, Bangladesh",
+    "emailLabel": "Email",
+    "emailLine": "hello@sararglobal.com",
+    "phoneLabel": "Phone",
+    "customerAccount": "Account",
+    "customerCart": "Cart",
+    "customerWishlist": "Wishlist",
+    "customerBlog": "Blog",
+    "infoAbout": "About us",
+    "infoContact": "Contact us",
+    "infoPrivacy": "Privacy policy",
+    "infoReturns": "Return & refund",
+    "infoCancellation": "Cancellation policy",
+    "socialFacebook": "Facebook",
+    "socialTiktok": "TikTok",
+    "developedBy": "Developed by",
+    "developerName": "Mushfikur Rahman"
+  },
+  "states": {
+    "loading": "Loading storefront...",
+    "retry": "Try again",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The page you requested does not exist.",
+    "goHome": "Back to home"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "description": "We could not load this page. Please try again."
+  }
+}
