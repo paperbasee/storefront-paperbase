@@ -8,14 +8,39 @@
     "currency": "USD",
     "language": "Language",
     "empty": "Nothing to show yet.",
-    "close": "Close"
+    "close": "Close",
+    "callUsNow": "Call us now"
   },
   "nav": {
     "home": "Home",
     "products": "Products",
+    "account": "Account",
     "cart": "Cart",
     "flashSale": "Flash Sale",
     "openSearch": "Open search"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search products, brands, categories…",
+    "liveLoading": "Searching…",
+    "liveError": "Couldn’t load suggestions. Try again.",
+    "liveNoMatches": "No quick matches. View all results for the full catalog.",
+    "liveViewAll": "View all results",
+    "livePanelAria": "Search suggestions",
+    "resultsFor": "Results for \"{q}\"",
+    "resultCount": "{count, plural, one {# product} other {# products}}",
+    "minCharsHint": "Enter at least 2 characters to search.",
+    "emptyQueryHint": "Type a product name in the search bar, then press enter or choose view all to see full results.",
+    "matchingCategories": "Matching categories",
+    "suggestions": "Suggestions",
+    "noProducts": "No products matched your search.",
+    "paginationAria": "Search results pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageStatus": "Page {current} of {total}"
+  },
+  "categories": {
+    "noProducts": "No products found."
   },
   "home": {
     "headline": "Royal quality for modern living",
@@ -41,15 +66,13 @@
     "heritageLinenCover": "Heritage Linen Cover"
   },
   "productCard": {
+    "addToCart": "Add to Cart",
+    "addToCartAria": "Add {name} to cart",
     "sold": "{count, plural, one {# sold} other {# sold}}",
-    "ratingValue": "{value}/5.0",
     "locations": {
       "royalSapphireKettle": "Bangladesh, Dhaka",
       "amberCeramicSet": "Bangladesh, Chattogram",
       "heritageLinenCover": "Bangladesh, Sylhet"
-    },
-    "stores": {
-      "sararOfficial": "Sarar Official Store"
     }
   },
   "productDetail": {
@@ -63,6 +86,7 @@
     "producerCodeLabel": "Manufacturer code",
     "skuLabel": "SKU",
     "nowLabel": "Now",
+    "effectivePriceLabel": "Your price",
     "wasLabel": "Was",
     "priceDiscount": "(-{percent}%)",
     "colorLabel": "Color",

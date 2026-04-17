@@ -226,7 +226,7 @@ export function CheckoutShippingView() {
         className="grid w-full min-w-0 max-w-full gap-8 lg:grid-cols-[minmax(0,1fr)_min(380px,100%)] lg:items-start"
       >
         <div className="min-w-0 space-y-8">
-          <section className="min-w-0 rounded-xl border border-neutral-200/60 bg-white p-4 shadow-sm sm:p-6 md:p-8">
+          <section className="min-w-0 rounded-lg border border-neutral-200/60 bg-white p-4 shadow-sm sm:p-6 md:p-8">
             <h1 className="mb-6 text-lg font-semibold text-text">{t("shippingAddress")}</h1>
             <div className="grid gap-4">
               <div className="grid gap-4 sm:grid-cols-2">
@@ -295,7 +295,7 @@ export function CheckoutShippingView() {
             </div>
           </section>
 
-          <section className="min-w-0 rounded-xl border border-neutral-200/60 bg-white p-4 shadow-sm sm:p-6 md:p-8">
+          <section className="min-w-0 rounded-lg border border-neutral-200/60 bg-white p-4 shadow-sm sm:p-6 md:p-8">
             <h2 className="mb-4 text-lg font-semibold text-text">Shipping Zone</h2>
             <select
               className={inputClass}
@@ -311,7 +311,7 @@ export function CheckoutShippingView() {
             </select>
           </section>
 
-          <section className="min-w-0 rounded-xl border border-neutral-200/60 bg-white p-4 shadow-sm sm:p-6 md:p-8">
+          <section className="min-w-0 rounded-lg border border-neutral-200/60 bg-white p-4 shadow-sm sm:p-6 md:p-8">
             <h2 className="mb-4 text-lg font-semibold text-text">{t("shippingMethod")}</h2>
             <fieldset className="grid min-w-0 gap-3 sm:grid-cols-2">
               <legend className="sr-only">{t("shippingMethod")}</legend>
@@ -321,7 +321,7 @@ export function CheckoutShippingView() {
                   <label
                     key={opt.method_public_id}
                     className={cn(
-                      "flex min-w-0 cursor-pointer items-start gap-2 rounded-xl border p-3 transition-colors sm:gap-3 sm:p-4",
+                      "flex min-w-0 cursor-pointer items-start gap-2 rounded-lg border p-3 transition-colors sm:gap-3 sm:p-4",
                       selected ? "border-text bg-white ring-1 ring-text" : "border-neutral-200 hover:border-neutral-300",
                     )}
                   >
@@ -337,7 +337,7 @@ export function CheckoutShippingView() {
                       <span className="block break-words font-medium text-text">{opt.method_name}</span>
                       <span className="break-words text-sm text-neutral-500">{opt.method_name}</span>
                     </span>
-                    <span className="shrink-0 text-sm font-semibold whitespace-nowrap text-text">
+                    <span className="price-display-line shrink-0 text-base whitespace-nowrap sm:text-lg">
                       {formatMoney(opt.price, locale)}
                     </span>
                   </label>
@@ -348,7 +348,7 @@ export function CheckoutShippingView() {
           {errorText ? <p className="text-sm text-red-600">{errorText}</p> : null}
         </div>
 
-        <aside className="min-w-0 w-full max-w-full rounded-xl border border-neutral-200/60 bg-white p-4 shadow-sm sm:p-6 md:p-8">
+        <aside className="min-w-0 w-full max-w-full rounded-lg border border-neutral-200/60 bg-white p-4 shadow-sm sm:p-6 md:p-8">
           <h2 className="mb-5 text-lg font-semibold text-text">{t("summaryTitle")}</h2>
           <ul className="mb-4 max-h-[min(360px,50vh)] space-y-4 overflow-x-hidden overflow-y-auto pe-1">
             {items.map((item) => (
@@ -356,7 +356,7 @@ export function CheckoutShippingView() {
                 key={`${item.product_public_id}-${item.variant_public_id ?? "default"}`}
                 className="flex min-w-0 gap-2 sm:gap-3"
               >
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-white">
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-white">
                   <Image
                     src={item.image_url ?? "/placeholders/hero.svg"}
                     alt={item.name}
@@ -364,36 +364,38 @@ export function CheckoutShippingView() {
                     sizes="64px"
                     className="object-contain p-1"
                   />
-                  <span className="absolute left-1 top-1 flex size-5 items-center justify-center rounded-full bg-text text-[10px] font-bold text-white">
+                  <span className="absolute left-1 top-1 flex size-5 items-center justify-center rounded-md bg-text text-[10px] font-bold text-white">
                     {item.quantity}
                   </span>
                 </div>
                 <div className="min-w-0 flex-1 overflow-hidden">
                   <p className="break-words text-sm font-medium leading-snug text-text">{item.name}</p>
                 </div>
-                <p className="max-w-[45%] shrink-0 text-end text-sm font-semibold break-all text-text tabular-nums sm:max-w-none sm:whitespace-nowrap">
+                <p className="price-display-line max-w-[45%] shrink-0 text-end break-all sm:max-w-none sm:whitespace-nowrap">
                   {formatMoney(parseDecimal(item.price) * item.quantity, locale)}
                 </p>
               </li>
             ))}
           </ul>
 
-          <dl className="min-w-0 space-y-2.5 border-t border-neutral-200 pt-4 text-sm">
-            <div className="flex min-w-0 justify-between gap-2 text-neutral-600 sm:gap-4">
-              <dt className="min-w-0 shrink break-words">{t("subtotal")}</dt>
-              <dd className="shrink-0 text-end font-medium break-all text-text tabular-nums">
+          <dl className="min-w-0 space-y-3 border-t border-neutral-200 pt-5 text-base">
+            <div className="flex min-w-0 items-baseline justify-between gap-3 text-neutral-600 sm:gap-4">
+              <dt className="min-w-0 shrink break-words font-medium">{t("subtotal")}</dt>
+              <dd className="price-display-summary shrink-0 text-end break-all">
                 {formatMoney(subtotal, locale)}
               </dd>
             </div>
-            <div className="flex min-w-0 justify-between gap-2 text-neutral-600 sm:gap-4">
-              <dt className="min-w-0 shrink break-words">{t("shippingLine")}</dt>
-              <dd className="shrink-0 text-end font-medium break-all text-text tabular-nums">
+            <div className="flex min-w-0 items-baseline justify-between gap-3 text-neutral-600 sm:gap-4">
+              <dt className="min-w-0 shrink break-words font-medium">{t("shippingLine")}</dt>
+              <dd className="price-display-summary shrink-0 text-end break-all">
                 {formatMoney(displayShipping, locale)}
               </dd>
             </div>
-            <div className="flex min-w-0 justify-between gap-2 border-t border-neutral-200 pt-3 text-base font-bold text-text sm:gap-4">
-              <dt className="min-w-0 shrink break-words">{t("total")}</dt>
-              <dd className="shrink-0 text-end break-all tabular-nums">{formatMoney(finalTotal, locale)}</dd>
+            <div className="flex min-w-0 items-end justify-between gap-3 border-t border-neutral-200 pt-4 sm:gap-4">
+              <dt className="price-display-eyebrow-neutral">{t("total")}</dt>
+              <dd className="price-display-total shrink-0 text-end leading-none">
+                {formatMoney(finalTotal, locale)}
+              </dd>
             </div>
           </dl>
 

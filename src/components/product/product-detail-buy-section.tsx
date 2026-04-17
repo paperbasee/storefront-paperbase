@@ -128,7 +128,7 @@ export function ProductDetailBuySection({
                   }
                   aria-pressed={selected}
                   className={cn(
-                    "inline-flex min-h-10 items-center gap-2 rounded-md border bg-white px-4 py-2 text-sm font-medium text-text transition-colors",
+                    "inline-flex min-h-10 items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-medium text-text transition-colors",
                     selected
                       ? "border-emerald-600 ring-1 ring-emerald-600"
                       : "border-neutral-200 hover:border-neutral-300",
@@ -142,7 +142,12 @@ export function ProductDetailBuySection({
         </div>
       ))}
 
-      <p className="text-sm font-semibold text-emerald-700">{formatMoney(effectivePrice, locale)}</p>
+      {variants.length > 0 ? (
+        <div className="rounded-lg border border-primary/30 bg-primary/[0.06] px-4 py-4 sm:px-5">
+          <p className="price-display-eyebrow-neutral">{tDetail("effectivePriceLabel")}</p>
+          <p className="price-display-variant mt-2">{formatMoney(effectivePrice, locale)}</p>
+        </div>
+      ) : null}
       <p className="text-xs text-neutral-500">
         {effectiveStockStatus === "low_stock" ? "Low stock available" : tDetail("chooseOptionsHint")}
       </p>
@@ -153,7 +158,7 @@ export function ProductDetailBuySection({
           disabled={!inStock}
           onClick={handleOrderNow}
           className={cn(
-            "flex h-12 w-full items-center justify-center rounded-md px-4 text-sm font-bold tracking-wide text-white uppercase",
+            "flex h-12 w-full items-center justify-center rounded-lg px-4 text-sm font-bold tracking-wide text-white uppercase",
             "bg-emerald-600 hover:bg-emerald-700",
             "disabled:cursor-not-allowed disabled:opacity-50",
           )}
@@ -167,7 +172,7 @@ export function ProductDetailBuySection({
             disabled={!inStock}
             onClick={handleAdd}
             className={cn(
-              "flex h-12 min-w-0 flex-1 items-center justify-center rounded-md border border-neutral-200 bg-white px-3 text-sm font-semibold text-text transition-colors",
+              "flex h-12 min-w-0 flex-1 cursor-pointer items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-sm font-semibold text-text transition-colors",
               "hover:border-neutral-300 hover:bg-primary/[0.04]",
               "disabled:cursor-not-allowed disabled:opacity-50",
             )}
@@ -177,7 +182,7 @@ export function ProductDetailBuySection({
           <button
             type="button"
             onClick={handleShare}
-            className="flex size-12 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-white text-text transition-colors hover:border-neutral-300 hover:bg-primary/[0.04]"
+            className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-white text-text transition-colors hover:border-neutral-300 hover:bg-primary/[0.04]"
             aria-label={tDetail("shareProduct")}
           >
             <Share2 className="size-5" strokeWidth={2} aria-hidden />

@@ -66,7 +66,7 @@ export function CartPanel({ open, onClose }: CartPanelProps) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-sm font-medium text-text">{item.name}</h3>
-                  <p className="price-text text-sm font-semibold">{formatMoney(item.price, locale)}</p>
+                  <p className="price-display-line">{formatMoney(item.price, locale)}</p>
                   <QuantityStepper
                     quantity={item.quantity}
                     onIncrement={() => increment(item.product_public_id, item.variant_public_id)}
@@ -87,11 +87,13 @@ export function CartPanel({ open, onClose }: CartPanelProps) {
           </div>
         )}
 
-        <div className="mt-4 border-t border-primary/20 pt-4">
-          <p className="text-sm text-text/80">{t("items", { count: itemCount })}</p>
-          <p className="mb-4 text-lg font-bold price-text">
-            {t("subtotal")}: {formatMoney(subtotal, locale)}
-          </p>
+        <div className="mt-4 border-t border-primary/20 bg-white/80 pt-5">
+          <p className="price-display-eyebrow-neutral">{t("subtotal")}</p>
+          <div className="mt-2 flex items-end justify-between gap-3">
+            <p className="text-sm text-text/75">{t("items", { count: itemCount })}</p>
+            <p className="price-display-total shrink-0 leading-none">{formatMoney(subtotal, locale)}</p>
+          </div>
+          <div className="mb-4 mt-4 h-px bg-primary/15" aria-hidden />
           <div className="grid gap-2">
             {items.length === 0 ? (
               <Button variant="accent" disabled>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import Script from "next/script";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
@@ -8,14 +8,18 @@ import type { ReactNode } from "react";
 
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { PaperbaseBrowserApiOriginBridge } from "@/components/paperbase/paperbase-browser-api-origin-bridge";
 import { routing, type Locale } from "@/i18n/routing";
 import { getServerPaperbaseConfig } from "@/lib/server/config";
 import { getTrackerScriptSrc } from "@/lib/server/tracking";
 import { getStorefrontStorePublic } from "@/lib/storefront";
 
-const inter = Inter({
+const poppins = Poppins({
+  weight: ["300", "400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-poppins",
+  display: "swap",
 });
 
 type LocaleLayoutProps = {
@@ -55,14 +59,14 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   }
 
   setRequestLocale(locale);
-  const messages = await getMessages();
+  const [messages, store] = await Promise.all([getMessages(), getStorefrontStorePublic()]);
   const activeLocale = locale as Locale;
-  const store = await getStorefrontStorePublic();
   const { publishableKey } = getServerPaperbaseConfig();
   const trackerSrc = getTrackerScriptSrc(store);
 
   return (
     <NextIntlClientProvider locale={activeLocale} messages={messages}>
+      <PaperbaseBrowserApiOriginBridge />
       <Script src={trackerSrc} strategy="afterInteractive" />
       <Script
         id="paperbase-publishable-key"
@@ -73,8 +77,8 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       />
       <div
         lang={activeLocale}
-        className={`${inter.variable} flex min-h-screen flex-col bg-white ${
-          activeLocale === "bn" ? "font-bn" : inter.className
+        className={`${poppins.variable} flex min-h-screen flex-col bg-white ${
+          activeLocale === "bn" ? "font-bn" : "font-sans-en"
         }`}
       >
         <Navbar />

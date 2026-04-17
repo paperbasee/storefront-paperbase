@@ -1,9 +1,10 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { ProductCard } from "@/components/common/product-card";
 import { PageContainer } from "@/components/layout/page-container";
 import { routing, type Locale } from "@/i18n/routing";
+import { categoryDisplayName } from "@/lib/category-display";
 import { listProducts } from "@/lib/server/paperbase";
 import { getStorefrontCategoryBySlug } from "@/lib/products";
 
@@ -18,27 +19,47 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
   setRequestLocale(locale);
 
-  const [category, products] = await Promise.all([
+  const [tCategories, category, products] = await Promise.all([
+    getTranslations("categories"),
     getStorefrontCategoryBySlug(slug),
     listProducts({ category: slug }),
   ]);
 
+  const description = typeof category.description === "string" ? category.description.trim() : "";
+  const hasProducts = products.results.length > 0;
+
   return (
-    <div className="bg-surface py-8">
+    <div className="bg-surface py-8 md:py-10">
       <PageContainer>
-        <h1 className="text-2xl font-semibold text-text">{category.name}</h1>
-        <p className="mt-2 text-sm text-neutral-600">{category.description}</p>
-        <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {products.results.map((product) => (
-            <ProductCard
-              key={product.public_id}
-              product={{
-                ...product,
-                extra_data: product.extra_data ?? {},
-              }}
-            />
-          ))}
-        </div>
+        <header className="mx-auto max-w-4xl px-1 text-center">
+          <h1 className="text-pretty text-2xl font-extrabold tracking-tight text-text md:text-3xl lg:text-4xl">
+            {categoryDisplayName(category.name)}
+          </h1>
+          {description ? (
+            <p className="mx-auto mt-3 max-w-3xl text-pretty text-base font-medium leading-relaxed text-text/85 md:mt-4 md:text-lg md:leading-relaxed">
+              {description}
+            </p>
+          ) : null}
+        </header>
+
+        {hasProducts ? (
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-6 md:mt-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {products.results.map((product) => (
+              <ProductCard
+                key={product.public_id}
+                locale={locale as Locale}
+                product={{
+                  ...product,
+                  extra_data: product.extra_data ?? {},
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="card mx-auto mt-6 max-w-lg text-center text-sm text-text/80 md:mt-8">
+            {tCategories("noProducts")}
+          </p>
+        )}
       </PageContainer>
     </div>
   );

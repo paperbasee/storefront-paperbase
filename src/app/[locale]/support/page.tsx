@@ -19,7 +19,7 @@ export default async function SupportPage({ params }: SupportPageProps) {
   return (
     <div className="bg-surface py-8">
       <PageContainer>
-        <div className="mx-auto max-w-2xl rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="mx-auto max-w-2xl rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
           <h1 className="text-2xl font-semibold text-text">Support</h1>
           <p className="mt-2 text-sm text-neutral-600">Submit a support ticket and we will get back to you.</p>
           <div className="mt-6">

@@ -1,7 +1,8 @@
 import { ImageIcon } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
-import { CartPanelHost, CartTrigger } from "@/components/common/cart-drawer-trigger";
+import { AccountNavLink } from "@/components/common/account-nav-link";
+import { CartPanelHost, CartTrigger, MobileFloatingCartButton, MobileScrollToTopButton } from "@/components/common/cart-drawer-trigger";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { Link } from "@/i18n/routing";
 import { DesktopCategoryMegaNav } from "@/components/layout/desktop-category-mega-nav";
@@ -11,19 +12,31 @@ import { MobileNavDrawer } from "@/components/layout/mobile-nav-drawer";
 import { PageContainer } from "@/components/layout/page-container";
 import { getStorefrontHeaderCategories, getStorefrontNotifications, getStorefrontStorePublic } from "@/lib/storefront";
 
+/** First word on top, remainder below (e.g. "Sarar Global" → Sarar / Global). */
+function splitBrandName(name: string): { top: string; bottom: string } {
+  const trimmed = name.trim();
+  const m = trimmed.match(/^(\S+)\s+(.+)$/);
+  if (!m) {
+    return { top: trimmed, bottom: "" };
+  }
+  return { top: m[1], bottom: m[2].trim() };
+}
+
 export async function Navbar() {
-  const common = await getTranslations("common");
-  const nav = await getTranslations("nav");
-  const product = await getTranslations("product");
-  const [store, categories, notifications] = await Promise.all([
+  const [common, nav, search, product, store, categories, notifications] = await Promise.all([
+    getTranslations("common"),
+    getTranslations("nav"),
+    getTranslations("search"),
+    getTranslations("product"),
     getStorefrontStorePublic(),
     getStorefrontHeaderCategories(),
     getStorefrontNotifications(),
   ]);
   const topNotice = notifications[0]?.cta_text ?? common("brand");
+  const { top: brandTop, bottom: brandBottom } = splitBrandName(store.store_name);
 
   return (
-    <header className="w-full min-w-0 overflow-x-clip bg-header text-white pt-[env(safe-area-inset-top,0px)] ps-[env(safe-area-inset-left,0px)] pe-[env(safe-area-inset-right,0px)]">
+    <header className="sticky top-0 z-40 w-full min-w-0 overflow-x-clip bg-header text-white pt-[env(safe-area-inset-top,0px)] ps-[env(safe-area-inset-left,0px)] pe-[env(safe-area-inset-right,0px)]">
       <div className="bg-header/95">
         <PageContainer>
           <p className="py-1.5 text-center text-[11px] tracking-wide text-white/90">
@@ -43,18 +56,19 @@ export async function Navbar() {
             />
             <div className="min-w-0">
               <MobileSearchOverlay
-                placeholder={common("empty")}
+                placeholder={search("placeholder")}
                 openSearchAriaLabel={nav("openSearch")}
                 submitAriaLabel={nav("openSearch")}
                 closeLabel={common("close")}
               />
             </div>
-            <CartTrigger variant="mobile" />
+            <AccountNavLink variant="mobile" />
           </div>
 
           <Link
             href="/"
             className="hidden shrink-0 items-center gap-3 leading-tight md:inline-flex"
+            aria-label={store.store_name}
           >
             <ImageIcon
               className="size-11 shrink-0 text-white/45"
@@ -62,32 +76,37 @@ export async function Navbar() {
               aria-hidden
             />
             <span className="flex flex-col justify-center gap-0.5">
-              <span className="text-sm font-semibold">{store.store_name}</span>
-              <span className="text-xs text-white/75">Trusted daily essentials</span>
+              <span className="text-sm font-extrabold uppercase tracking-wide leading-tight text-white">{brandTop}</span>
+              {brandBottom ? (
+                <span className="text-sm font-extrabold uppercase tracking-wide leading-tight text-white">{brandBottom}</span>
+              ) : null}
             </span>
           </Link>
 
           <div className="hidden min-w-0 flex-1 md:block">
             <HeaderSearch
-              placeholder={common("empty")}
+              placeholder={search("placeholder")}
               submitAriaLabel={nav("openSearch")}
             />
           </div>
 
           <div className="hidden shrink-0 items-center gap-2 md:flex md:gap-3">
             <div className="hidden lg:block">
-              <p className="text-[11px] uppercase tracking-wide text-white/75">{common("brand")}</p>
+              <p className="text-[11px] uppercase tracking-wide text-white/75">{common("callUsNow")}</p>
               <p className="text-sm font-semibold">{store.phone}</p>
             </div>
             <div className="hidden md:block">
               <LanguageSwitcher />
             </div>
+            <AccountNavLink variant="desktop" />
             <CartTrigger variant="desktop" />
           </div>
         </div>
       </PageContainer>
 
       <CartPanelHost />
+      <MobileScrollToTopButton />
+      <MobileFloatingCartButton />
 
       <div className="hidden border-t border-white/15 bg-header md:block">
         <DesktopCategoryMegaNav

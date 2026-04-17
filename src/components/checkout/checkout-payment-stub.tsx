@@ -80,7 +80,7 @@ export function CheckoutPaymentStub() {
     <div className="bg-white pb-12 pt-6 md:pb-16 md:pt-8">
       <CheckoutBreadcrumbs step="payment" onOpenCart={openCartPanel} />
 
-      <div className="mx-auto max-w-lg rounded-xl border border-neutral-200/60 bg-white p-8 shadow-sm md:p-10">
+      <div className="mx-auto max-w-lg rounded-lg border border-neutral-200/60 bg-white p-8 shadow-sm md:p-10">
         {orderNumber ? (
           <>
             <h1 className="text-xl font-semibold text-text">Order placed successfully</h1>

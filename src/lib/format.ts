@@ -9,6 +9,7 @@ export function formatPrice(value: number, locale: Locale) {
   return new Intl.NumberFormat(locale === "bn" ? "bn-BD" : "en-US", {
     style: "currency",
     currency: currencyByLocale[locale],
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 2,
   }).format(value);
 }
@@ -21,10 +22,27 @@ export function parseDecimal(value: string | number): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function formatMoney(value: string | number, locale: Locale, currency = "BDT") {
-  return new Intl.NumberFormat(locale === "bn" ? "bn-BD" : "en-US", {
-    style: "currency",
+const moneyFormatterOptions = (currency: string) =>
+  ({
+    style: "currency" as const,
     currency,
+    currencyDisplay: "narrowSymbol" as const,
     maximumFractionDigits: 2,
-  }).format(parseDecimal(value));
+  }) satisfies Intl.NumberFormatOptions;
+
+export function formatMoney(value: string | number, locale: Locale, currency = "BDT") {
+  return new Intl.NumberFormat(locale === "bn" ? "bn-BD" : "en-US", moneyFormatterOptions(currency)).format(
+    parseDecimal(value),
+  );
+}
+
+/** Same output as `formatMoney`, split for styling (e.g. bold currency symbol). */
+export function formatMoneyParts(
+  value: string | number,
+  locale: Locale,
+  currency = "BDT",
+): Intl.NumberFormatPart[] {
+  return new Intl.NumberFormat(locale === "bn" ? "bn-BD" : "en-US", moneyFormatterOptions(currency)).formatToParts(
+    parseDecimal(value),
+  );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { LayoutGrid } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +12,7 @@ const CLOSE_DELAY_MS = 160;
 
 /** Same typography for button vs link (UA button styles can otherwise differ from anchors). */
 const categoryBarItemClass =
-  "inline-flex min-h-9 max-w-none items-center rounded-md px-2 py-1.5 text-sm font-medium leading-tight tracking-wide whitespace-nowrap uppercase md:px-2.5";
+  "inline-flex min-h-9 max-w-none items-center rounded-lg px-2 py-1.5 text-sm font-bold leading-tight tracking-wide whitespace-nowrap uppercase md:px-2.5";
 
 type NavHrefProps = {
   href: string;
@@ -44,6 +43,37 @@ type DesktopCategoryMegaNavProps = {
   shopAllInPrefix: string;
   newBadgeLabel: string;
 };
+
+function flattenCategoryLinks(nodes: HeaderCategoryNav[]): { id: string; href: string; label: string }[] {
+  const out: { id: string; href: string; label: string }[] = [];
+  function walk(node: HeaderCategoryNav) {
+    out.push({ id: node.id, href: node.href, label: node.label });
+    for (const child of node.children ?? []) walk(child);
+  }
+  for (const n of nodes) walk(n);
+  return out;
+}
+
+function CategoryNavFlatStack({ items }: { items: HeaderCategoryNav[] }) {
+  const links = flattenCategoryLinks(items);
+  if (!links.length) {
+    return null;
+  }
+
+  return (
+    <div className="flex min-w-0 flex-col gap-2 text-sm">
+      {links.map((link) => (
+        <NavHref
+          key={link.id}
+          href={link.href}
+          className="block font-normal leading-snug text-text transition-colors hover:text-primary"
+        >
+          {link.label}
+        </NavHref>
+      ))}
+    </div>
+  );
+}
 
 export function DesktopCategoryMegaNav({
   categories,
@@ -176,7 +206,7 @@ export function DesktopCategoryMegaNav({
           <PageContainer>
             <div
               className={cn(
-                "origin-top overflow-hidden rounded-b-2xl border border-black/[0.06] bg-white text-text shadow-[0_24px_48px_-12px_rgba(15,23,42,0.25)] ring-1 ring-black/[0.04]",
+                "origin-top overflow-hidden rounded-lg border border-black/[0.06] bg-white text-text shadow-[0_24px_48px_-12px_rgba(15,23,42,0.25)] ring-1 ring-black/[0.04]",
                 "motion-safe:transition-[opacity,transform] motion-safe:duration-150 motion-safe:ease-out",
               )}
             >
@@ -194,39 +224,30 @@ export function DesktopCategoryMegaNav({
                   </NavHref>
                 </div>
 
-                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                   {activeChildren.map((item) => (
-                    <NavHref
-                      key={item.id}
-                      href={item.href}
-                      className={cn(
-                        "group flex gap-3 rounded-xl border border-transparent p-3 transition-colors",
-                        "hover:border-neutral-200 hover:bg-primary/[0.04]",
-                        "focus-visible:border-primary/30 focus-visible:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
-                      )}
-                    >
-                      <span
-                        className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-500 transition-colors group-hover:border-neutral-300 group-hover:text-primary"
-                        aria-hidden
+                    <section key={item.id} className="min-w-0">
+                      <NavHref
+                        href={item.href}
+                        className="block pb-3 text-base font-semibold uppercase tracking-wide text-neutral-950 outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2"
                       >
-                        <LayoutGrid className="size-5" strokeWidth={1.5} />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold text-text normal-case tracking-normal">{item.label}</span>
+                        <span className="inline-flex flex-wrap items-center gap-2">
+                          {item.label}
                           {item.isNew ? (
                             <Badge className="bg-success px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white">
                               {newBadgeLabel}
                             </Badge>
                           ) : null}
                         </span>
-                        {item.description ? (
-                          <span className="mt-1 block text-[13px] leading-snug font-normal text-neutral-600 normal-case tracking-normal">
-                            {item.description}
-                          </span>
-                        ) : null}
-                      </span>
-                    </NavHref>
+                      </NavHref>
+                      {item.children?.length ? (
+                        <div className="pt-1">
+                          <CategoryNavFlatStack items={item.children} />
+                        </div>
+                      ) : item.description ? (
+                        <p className="mt-3 text-sm leading-snug text-neutral-600">{item.description}</p>
+                      ) : null}
+                    </section>
                   ))}
                 </div>
               </div>

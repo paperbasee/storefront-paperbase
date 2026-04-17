@@ -23,7 +23,7 @@ export async function Footer() {
   const year = new Date().getFullYear();
 
   const socialClass =
-    "flex size-11 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-900 transition-colors hover:border-neutral-300 hover:bg-neutral-50";
+    "flex size-11 items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-900 transition-colors hover:border-neutral-300 hover:bg-neutral-50";
 
   return (
     <footer className="border-t border-neutral-200 bg-white pt-10 pb-8 text-neutral-900">

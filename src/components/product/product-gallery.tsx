@@ -28,7 +28,7 @@ export function ProductGallery({ images, productName, discountPercent }: Product
             aria-label={`View image ${i + 1}`}
             aria-current={i === active ? "true" : undefined}
             className={cn(
-              "relative aspect-square w-full shrink-0 overflow-hidden rounded border bg-white transition-colors",
+              "relative aspect-square w-full shrink-0 overflow-hidden rounded-lg border bg-white transition-colors",
               i === active ? "border-2 border-violet-600" : "border border-neutral-200 hover:border-neutral-300",
             )}
           >

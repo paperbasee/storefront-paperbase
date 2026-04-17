@@ -3,12 +3,26 @@ import { notFound } from "next/navigation";
 
 import { ProductCard } from "@/components/common/product-card";
 import { PageContainer } from "@/components/layout/page-container";
-import { routing, type Locale } from "@/i18n/routing";
-import { getStorefrontCombinedSearch } from "@/lib/products";
+import { buttonVariants } from "@/components/ui/button";
+import { Link, routing, type Locale } from "@/i18n/routing";
+import { cn } from "@/lib/utils";
+import { getStorefrontSearchResults } from "@/lib/products";
+
+/** Storefront API default page size for `GET /products/search/`. */
+const PRODUCT_SEARCH_PAGE_SIZE = 24;
+
+function buildSearchHref(q: string, page: number): string {
+  const params = new URLSearchParams();
+  params.set("q", q);
+  if (page > 1) {
+    params.set("page", String(page));
+  }
+  return `/search?${params.toString()}`;
+}
 
 type SearchPageProps = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 };
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
@@ -18,30 +32,152 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   }
   setRequestLocale(locale);
 
-  const { q = "" } = await searchParams;
-  const t = await getTranslations("nav");
-  const response = q.trim().length >= 2 ? await getStorefrontCombinedSearch(q.trim()) : null;
+  const resolvedSearch = await searchParams;
+  const q = (resolvedSearch.q ?? "").trim();
+  const pageRaw = resolvedSearch.page;
+  const page = Math.max(1, Math.floor(Number(pageRaw)) || 1);
+  const queryReady = q.length >= 2;
+
+  const [t, searchData] = await Promise.all([
+    getTranslations("search"),
+    queryReady ? getStorefrontSearchResults(q, page) : Promise.resolve(null),
+  ]);
+
+  const totalPages =
+    searchData && searchData.count > 0
+      ? Math.ceil(searchData.count / PRODUCT_SEARCH_PAGE_SIZE)
+      : 0;
+
+  const showPagination = queryReady && totalPages > 1;
+  const hasProductHits = Boolean(searchData?.products.length);
+  const showCategoryMatches = Boolean(searchData?.categories.length);
+  const showSuggestions = Boolean(searchData?.suggestions.length);
 
   return (
-    <div className="bg-surface py-8">
+    <div className="bg-surface py-8 md:py-10">
       <PageContainer>
-        <h1 className="text-2xl font-semibold text-text">{t("products")}</h1>
-        <p className="mt-2 text-sm text-neutral-600">{q ? `Results for "${q}"` : "Type at least 2 characters."}</p>
-        {response?.products?.length ? (
-          <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {response.products.map((product) => (
-              <ProductCard
-                key={product.public_id}
-                product={{
-                  ...product,
-                  extra_data: product.extra_data ?? {},
-                }}
-              />
+        <header className="max-w-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-text md:text-3xl">{t("title")}</h1>
+          {queryReady ? (
+            <p className="mt-2 text-sm text-neutral-600 md:text-base">
+              {t("resultsFor", { q })}
+              {searchData ? (
+                <span className="ms-1 text-neutral-500">
+                  ({t("resultCount", { count: searchData.count })})
+                </span>
+              ) : null}
+            </p>
+          ) : q.length === 1 ? (
+            <p className="mt-2 text-sm text-neutral-600">{t("minCharsHint")}</p>
+          ) : (
+            <p className="mt-2 text-sm text-neutral-600">{t("emptyQueryHint")}</p>
+          )}
+        </header>
+
+        {queryReady && showCategoryMatches ? (
+          <section className="mt-8" aria-labelledby="search-categories-heading">
+            <h2 id="search-categories-heading" className="text-sm font-semibold text-text">
+              {t("matchingCategories")}
+            </h2>
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {searchData!.categories.map((cat) => (
+                <li key={cat.public_id}>
+                  <Link
+                    href={`/categories/${cat.slug}`}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "sm" }),
+                      "rounded-full border border-neutral-200 bg-white px-4 text-text shadow-sm hover:bg-neutral-50",
+                    )}
+                  >
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {queryReady && showSuggestions ? (
+          <section className="mt-8" aria-labelledby="search-suggestions-heading">
+            <h2 id="search-suggestions-heading" className="text-sm font-semibold text-text">
+              {t("suggestions")}
+            </h2>
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {searchData!.suggestions.map((label) => (
+                <li key={label}>
+                  <Link
+                    href={buildSearchHref(label, 1)}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "sm" }),
+                      "rounded-full border border-violet-200/80 bg-violet-50/80 px-4 text-text hover:bg-violet-100/80",
+                    )}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {queryReady && hasProductHits ? (
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {searchData!.products.map((product) => (
+              <ProductCard key={product.public_id} product={product} locale={locale as Locale} />
             ))}
           </div>
-        ) : (
-          <p className="mt-6 text-sm text-neutral-600">No products found.</p>
-        )}
+        ) : null}
+
+        {queryReady && !hasProductHits ? (
+          <p className="card mx-auto mt-10 max-w-lg text-center text-sm text-text/80">{t("noProducts")}</p>
+        ) : null}
+
+        {showPagination ? (
+          <nav
+            className="mt-10 flex flex-wrap items-center justify-center gap-3 border-t border-neutral-200/80 pt-8"
+            aria-label={t("paginationAria")}
+          >
+            {page > 1 ? (
+              <Link
+                href={buildSearchHref(q, page - 1)}
+                className={cn(buttonVariants({ variant: "ghost", size: "md" }), "min-w-[7rem] border border-neutral-200")}
+              >
+                {t("previous")}
+              </Link>
+            ) : (
+              <span
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "md" }),
+                  "pointer-events-none min-w-[7rem] border border-neutral-100 text-neutral-400",
+                )}
+                aria-disabled="true"
+              >
+                {t("previous")}
+              </span>
+            )}
+            <span className="text-sm tabular-nums text-neutral-600">
+              {t("pageStatus", { current: page, total: totalPages })}
+            </span>
+            {page < totalPages ? (
+              <Link
+                href={buildSearchHref(q, page + 1)}
+                className={cn(buttonVariants({ variant: "ghost", size: "md" }), "min-w-[7rem] border border-neutral-200")}
+              >
+                {t("next")}
+              </Link>
+            ) : (
+              <span
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "md" }),
+                  "pointer-events-none min-w-[7rem] border border-neutral-100 text-neutral-400",
+                )}
+                aria-disabled="true"
+              >
+                {t("next")}
+              </span>
+            )}
+          </nav>
+        ) : null}
       </PageContainer>
     </div>
   );

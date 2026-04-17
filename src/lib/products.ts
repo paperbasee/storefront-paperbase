@@ -1,3 +1,4 @@
+import { categoryDisplayName } from "@/lib/category-display";
 import {
   combinedSearch,
   getCatalogFilters,
@@ -80,6 +81,7 @@ const HOME_CATEGORY_PRODUCT_LIMIT = 10;
 export type StorefrontHomeCategorySection = {
   name: string;
   slug: string;
+  description: string;
   products: Product[];
   showViewMore: boolean;
 };
@@ -94,7 +96,13 @@ export async function getStorefrontHomeCategorySections(): Promise<StorefrontHom
       const showViewMore =
         response.count > HOME_CATEGORY_PRODUCT_LIMIT ||
         response.results.length > HOME_CATEGORY_PRODUCT_LIMIT;
-      return { name: cat.name, slug: cat.slug, products, showViewMore };
+      return {
+        name: categoryDisplayName(cat.name),
+        slug: cat.slug,
+        description: typeof cat.description === "string" ? cat.description.trim() : "",
+        products,
+        showViewMore,
+      };
     }),
   );
   return sections.filter((section) => section.products.length > 0);
@@ -124,12 +132,28 @@ export async function getStorefrontSearchProducts(q: string, page = 1): Promise<
   return response.results.map(mapProduct);
 }
 
-export async function getStorefrontCombinedSearch(q: string) {
-  return combinedSearch({ q });
+/**
+ * Full search UX: paginated products plus combined metadata (`GET /search/`).
+ * Combined response supplies matching categories and name suggestions (capped by API).
+ */
+export async function getStorefrontSearchResults(q: string, page = 1) {
+  const query = q.trim();
+  const [paginated, combined] = await Promise.all([
+    searchProducts(query, page),
+    combinedSearch({ q: query }),
+  ]);
+  return {
+    count: paginated.count,
+    next: paginated.next,
+    previous: paginated.previous,
+    products: paginated.results.map(mapProduct),
+    categories: combined.categories,
+    suggestions: combined.suggestions,
+  };
 }
 
-export async function getStorefrontTrendingSearch() {
-  return combinedSearch({ trending: "1" });
+export async function getStorefrontCombinedSearch(q: string) {
+  return combinedSearch({ q });
 }
 
 export async function getStorefrontCategoriesTree() {

@@ -123,7 +123,9 @@ export function paperbasePost<T>(
 }
 
 export function getStorePublic() {
-  return paperbaseGet<PaperbaseStorePublic>("store/public/");
+  return paperbaseGet<PaperbaseStorePublic>("store/public/", {
+    next: { revalidate: 300 },
+  });
 }
 
 export function listProducts(query?: {
@@ -137,7 +139,10 @@ export function listProducts(query?: {
   ordering?: "newest" | "price_asc" | "price_desc" | "popularity";
   sort?: "newest" | "price_asc" | "price_desc" | "popularity";
 }) {
-  return paperbaseGet<PaginatedResponse<PaperbaseProductListItem>>("products/", { query });
+  return paperbaseGet<PaginatedResponse<PaperbaseProductListItem>>("products/", {
+    query,
+    next: { revalidate: 60 },
+  });
 }
 
 export function getProductDetail(identifier: string) {
@@ -147,7 +152,9 @@ export function getProductDetail(identifier: string) {
 }
 
 export function getRelatedProducts(identifier: string) {
-  return paperbaseGet<PaperbaseProductListItem[]>(`products/${identifier}/related/`);
+  return paperbaseGet<PaperbaseProductListItem[]>(`products/${identifier}/related/`, {
+    next: { revalidate: 60 },
+  });
 }
 
 export function searchProducts(q: string, page?: number) {
@@ -159,9 +166,15 @@ export function searchProducts(q: string, page?: number) {
 export function listCategories(query?: { page?: number; tree?: "1" | "true" | "yes" }) {
   const tree = query?.tree;
   if (tree) {
-    return paperbaseGet<PaperbaseCategoryTreeNode[]>("categories/", { query: { tree } });
+    return paperbaseGet<PaperbaseCategoryTreeNode[]>("categories/", {
+      query: { tree },
+      next: { revalidate: 120 },
+    });
   }
-  return paperbaseGet<PaginatedResponse<PaperbaseCategory>>("categories/", { query });
+  return paperbaseGet<PaginatedResponse<PaperbaseCategory>>("categories/", {
+    query,
+    next: { revalidate: 120 },
+  });
 }
 
 export function getCategoryBySlug(slug: string) {
@@ -169,15 +182,22 @@ export function getCategoryBySlug(slug: string) {
 }
 
 export function getCatalogFilters() {
-  return paperbaseGet<PaperbaseCatalogFilters>("catalog/filters/");
+  return paperbaseGet<PaperbaseCatalogFilters>("catalog/filters/", {
+    next: { revalidate: 120 },
+  });
 }
 
 export function getBanners(slot?: PaperbaseBannerSlot) {
-  return paperbaseGet<PaperbaseBanner[]>("banners/", { query: { slot } });
+  return paperbaseGet<PaperbaseBanner[]>("banners/", {
+    query: { slot },
+    next: { revalidate: 120 },
+  });
 }
 
 export function getActiveNotifications() {
-  return paperbaseGet<PaperbaseNotification[]>("notifications/active/");
+  return paperbaseGet<PaperbaseNotification[]>("notifications/active/", {
+    next: { revalidate: 120 },
+  });
 }
 
 export function getShippingZones() {

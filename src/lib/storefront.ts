@@ -4,7 +4,8 @@ import {
   getStorePublic,
   listCategories,
 } from "@/lib/server/paperbase";
-import type { PaperbaseCategoryTreeNode } from "@/types/paperbase";
+import { categoryDisplayName } from "@/lib/category-display";
+import type { PaperbaseBannerSlot, PaperbaseCategoryTreeNode } from "@/types/paperbase";
 
 export type HeaderCategoryNav = {
   id: string;
@@ -18,7 +19,7 @@ export type HeaderCategoryNav = {
 function mapCategoryNode(node: PaperbaseCategoryTreeNode): HeaderCategoryNav {
   return {
     id: node.public_id,
-    label: node.name,
+    label: categoryDisplayName(node.name),
     href: `/categories/${node.slug}`,
     description: node.description || undefined,
     children: node.children?.map(mapCategoryNode) ?? [],
@@ -34,8 +35,8 @@ export async function getStorefrontHeaderCategories() {
   return categories.map(mapCategoryNode);
 }
 
-export async function getStorefrontBanners() {
-  const banners = await getBanners();
+export async function getStorefrontBanners(slot?: PaperbaseBannerSlot) {
+  const banners = await getBanners(slot);
   return [...banners].sort((a, b) => a.order - b.order);
 }
 

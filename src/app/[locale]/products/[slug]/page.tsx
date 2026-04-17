@@ -9,6 +9,7 @@ import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductCard } from "@/components/common/product-card";
 import { PageContainer } from "@/components/layout/page-container";
 import { Link, routing, type Locale } from "@/i18n/routing";
+import { categoryDisplayName } from "@/lib/category-display";
 import { formatMoney, parseDecimal } from "@/lib/format";
 import {
   getStorefrontProductDetail,
@@ -73,7 +74,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   const accordionItems = [{ id: "product-details", title: tDetail("sectionProductDetails"), body: "" }];
 
-  const categoryLabel = product.category_name;
+  const categoryLabel = categoryDisplayName(product.category_name);
   const galleryImages = product.images.length
     ? product.images.map((item) => item.image_url || "/placeholders/hero.svg")
     : [product.image_url || "/placeholders/hero.svg"];
@@ -128,25 +129,27 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 border-b border-neutral-100 pb-6">
+              <div className="space-y-4 border-b border-neutral-100 pb-8">
                 {product.original_price != null ? (
-                  <>
-                    <span className="text-2xl font-bold tabular-nums text-emerald-600 sm:text-3xl">
-                      {tDetail("nowLabel")} {formatMoney(unitPrice, activeLocale)}
-                    </span>
-                    <span className="text-base text-neutral-400 line-through tabular-nums sm:text-lg">
-                      {tDetail("wasLabel")} {formatMoney(product.original_price, activeLocale)}
-                    </span>
-                    {discountPercent != null ? (
-                      <span className="text-sm font-semibold tabular-nums text-emerald-600">
-                        {tDetail("priceDiscount", { percent: discountPercent })}
-                      </span>
-                    ) : null}
-                  </>
+                  <div>
+                    <p className="price-display-eyebrow">{tDetail("nowLabel")}</p>
+                    <p className="price-display-hero mt-1.5">{formatMoney(unitPrice, activeLocale)}</p>
+                    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2">
+                      <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
+                        <span className="price-display-eyebrow-neutral">{tDetail("wasLabel")}</span>
+                        <span className="price-display-compare">
+                          {formatMoney(product.original_price, activeLocale)}
+                        </span>
+                      </div>
+                      {discountPercent != null ? (
+                        <span className="price-display-discount-pill">
+                          {tDetail("priceDiscount", { percent: discountPercent })}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
                 ) : (
-                  <span className="text-2xl font-bold tabular-nums text-emerald-600 sm:text-3xl">
-                    {formatMoney(unitPrice, activeLocale)}
-                  </span>
+                  <p className="price-display-hero">{formatMoney(unitPrice, activeLocale)}</p>
                 )}
               </div>
 
@@ -176,7 +179,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <section className="border-t border-neutral-100 bg-surface py-10">
           <PageContainer>
             <h2 className="mb-5 text-xl font-semibold text-text">{tDetail("breadcrumbProducts")}</h2>
-            <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {relatedProducts.map((related) => (
                 <ProductCard key={related.public_id} product={related} />
               ))}

@@ -8,14 +8,39 @@
     "currency": "BDT",
     "language": "ভাষা",
     "empty": "এখনো কিছু দেখানোর নেই।",
-    "close": "বন্ধ করুন"
+    "close": "বন্ধ করুন",
+    "callUsNow": "এখনই কল করুন"
   },
   "nav": {
     "home": "হোম",
     "products": "পণ্যসমূহ",
+    "account": "অ্যাকাউন্ট",
     "cart": "কার্ট",
     "flashSale": "ফ্ল্যাশ সেল",
     "openSearch": "খোঁজ খুলুন"
+  },
+  "search": {
+    "title": "খোঁজ",
+    "placeholder": "পণ্য, ব্র্যান্ড বা বিভাগ খুঁজুন…",
+    "liveLoading": "খোঁজা হচ্ছে…",
+    "liveError": "পরামর্শ লোড করা যায়নি। আবার চেষ্টা করুন।",
+    "liveNoMatches": "দ্রুত কোনো মিল নেই। সম্পূর্ণ ক্যাটালগের জন্য সব ফলাফল দেখুন।",
+    "liveViewAll": "সব ফলাফল দেখুন",
+    "livePanelAria": "খোঁজার পরামর্শ",
+    "resultsFor": "\"{q}\" এর জন্য ফলাফল",
+    "resultCount": "{count, plural, one {#টি পণ্য} other {#টি পণ্য}}",
+    "minCharsHint": "খোঁজার জন্য কমপক্ষে ২ অক্ষর লিখুন।",
+    "emptyQueryHint": "সার্চ বারে পণ্যের নাম লিখুন, তারপর এন্টার চাপুন বা সম্পূর্ণ ফলাফলের জন্য সব দেখুন বেছে নিন।",
+    "matchingCategories": "মিলে যাওয়া বিভাগ",
+    "suggestions": "পরামর্শ",
+    "noProducts": "আপনার খোঁজের সাথে মিলে এমন কোনো পণ্য নেই।",
+    "paginationAria": "খোঁজার ফলাফলের পৃষ্ঠা",
+    "previous": "আগের পৃষ্ঠা",
+    "next": "পরের পৃষ্ঠা",
+    "pageStatus": "পৃষ্ঠা {current} / {total}"
+  },
+  "categories": {
+    "noProducts": "কোনো পণ্য পাওয়া যায়নি।"
   },
   "home": {
     "headline": "আধুনিক জীবনের জন্য রাজকীয় মান",
@@ -41,15 +66,13 @@
     "heritageLinenCover": "হেরিটেজ লিনেন কভার"
   },
   "productCard": {
+    "addToCart": "কার্টে যোগ করুন",
+    "addToCartAria": "{name} কার্টে যোগ করুন",
     "sold": "{count, plural, one {# বিক্রি} other {# বিক্রি}}",
-    "ratingValue": "{value}/৫.০",
     "locations": {
       "royalSapphireKettle": "বাংলাদেশ, ঢাকা",
       "amberCeramicSet": "বাংলাদেশ, চট্টগ্রাম",
       "heritageLinenCover": "বাংলাদেশ, সিলেট"
-    },
-    "stores": {
-      "sararOfficial": "সারার অফিসিয়াল স্টোর"
     }
   },
   "productDetail": {
@@ -63,6 +86,7 @@
     "producerCodeLabel": "প্রস্তুতকারী কোড",
     "skuLabel": "SKU",
     "nowLabel": "এখন",
+    "effectivePriceLabel": "আপনার মূল্য",
     "wasLabel": "ছিল",
     "priceDiscount": "(-{percent}%)",
     "colorLabel": "রঙ",

@@ -16,7 +16,7 @@ export function LanguageSwitcher() {
   }
 
   return (
-    <label className="relative inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-white/90 transition hover:bg-white/10 hover:text-white">
+    <label className="relative inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg text-white/90 transition hover:bg-white/10 hover:text-white">
       <Languages className="pointer-events-none size-[24px]" strokeWidth={1.75} aria-hidden />
       <select
         value={locale}
