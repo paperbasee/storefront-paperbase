@@ -1,15 +1,11 @@
 import Link from "next/link";
 
-import { routing } from "@/i18n/routing";
-
 /**
  * Handles requests that never enter `app/[locale]/` (e.g. misconfigured host or
  * middleware bypass). Normal storefront traffic is prefixed with a locale and
  * uses `app/[locale]/not-found.tsx` via the `[...rest]` catch-all.
  */
 export default function RootNotFound() {
-  const home = `/${routing.defaultLocale}`;
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-16 text-center">
       <p className="font-sans text-7xl font-extrabold tabular-nums tracking-tighter text-primary">404</p>
@@ -19,7 +15,7 @@ export default function RootNotFound() {
       </p>
       <div className="mt-8 flex justify-center">
         <Link
-          href={home}
+          href="/"
           className="inline-flex h-12 min-w-[10rem] items-center justify-center rounded-lg bg-primary px-5 text-sm font-semibold text-white hover:bg-primary/90"
         >
           Back to home
