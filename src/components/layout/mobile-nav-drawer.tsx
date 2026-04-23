@@ -37,8 +37,7 @@ function CategoryNavLink({
 
 type MobileNavDrawerProps = {
   menuTitle: string;
-  allProductsLabel: string;
-  allCategoriesLabel: string;
+  backHomeLabel: string;
   categories: HeaderCategoryNav[];
 };
 
@@ -187,27 +186,9 @@ function CategoryBlock({
   );
 }
 
-function CloseIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      className="size-5"
-      aria-hidden
-    >
-      <path d="M18 6 6 18M6 6l12 12" />
-    </svg>
-  );
-}
-
 export function MobileNavDrawer({
   menuTitle,
-  allProductsLabel,
-  allCategoriesLabel,
+  backHomeLabel,
   categories,
 }: MobileNavDrawerProps) {
   const [open, setOpen] = useState(false);
@@ -294,40 +275,21 @@ export function MobileNavDrawer({
                   open ? "translate-x-0" : "-translate-x-full"
                 }`}
               >
-                <header className="flex shrink-0 items-center justify-between border-b border-white/15 px-4 py-3">
-                  <h2 id={headingId} className="text-lg font-bold text-white">
-                    {menuTitle}
-                  </h2>
-                  <button
-                    type="button"
-                    className="flex size-10 items-center justify-center rounded-md text-white transition hover:bg-white/10"
-                    aria-label="Close menu"
+                <header className="flex shrink-0 items-center border-b border-white/15 px-4 py-3">
+                  <Link
+                    id={headingId}
+                    href="/"
+                    className="inline-flex items-center rounded-md text-lg font-bold text-white underline-offset-2 hover:underline"
                     onClick={close}
                   >
-                    <CloseIcon />
-                  </button>
+                    {backHomeLabel}
+                  </Link>
                 </header>
 
                 <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-                  <a
-                    href="#products"
-                    className="block border-b border-white/10 px-4 py-3.5 text-base font-medium text-white/95 transition hover:bg-white/10"
-                    onClick={close}
-                  >
-                    {allProductsLabel}
-                  </a>
-
                   {categories.map((category) => (
                     <CategoryBlock key={category.id} category={category} onNavigate={close} />
                   ))}
-
-                  <button
-                    type="button"
-                    className="w-full border-b border-white/10 px-4 py-3.5 text-left text-base text-white/95 transition hover:bg-white/10"
-                    onClick={close}
-                  >
-                    {allCategoriesLabel}
-                  </button>
                 </nav>
               </aside>
             </div>,

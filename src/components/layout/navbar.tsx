@@ -48,8 +48,7 @@ export async function Navbar() {
           <div className="grid w-full min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:hidden">
             <MobileNavDrawer
               menuTitle={nav("products")}
-              allProductsLabel={nav("products")}
-              allCategoriesLabel={nav("products")}
+              backHomeLabel="Back to home"
               categories={categories}
             />
             <div className="min-w-0">
