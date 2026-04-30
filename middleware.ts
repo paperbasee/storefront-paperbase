@@ -5,7 +5,13 @@ import { routing } from "@/i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
-const LOCALE_SET = new Set(routing.locales);
+type StoreLocale = (typeof routing.locales)[number];
+
+const LOCALE_SET = new Set<StoreLocale>(routing.locales);
+
+function isStoreLocale(value: string): value is StoreLocale {
+  return LOCALE_SET.has(value as StoreLocale);
+}
 
 function resolveBackendBaseUrl(): string | null {
   const origin =
@@ -14,7 +20,7 @@ function resolveBackendBaseUrl(): string | null {
   return origin ? `${origin.replace(/\/+$/, "")}/api/v1` : null;
 }
 
-async function resolveStoreLocale(): Promise<string | null> {
+async function resolveStoreLocale(): Promise<StoreLocale | null> {
   const baseUrl = resolveBackendBaseUrl();
   const publishableKey = process.env.PAPERBASE_PUBLISHABLE_KEY;
   if (!baseUrl || !publishableKey) return null;
@@ -33,7 +39,7 @@ async function resolveStoreLocale(): Promise<string | null> {
     if (!response.ok) return null;
     const data = (await response.json()) as { language?: string };
     const locale = (data.language || "").toLowerCase();
-    return LOCALE_SET.has(locale) ? locale : "en";
+    return isStoreLocale(locale) ? locale : "en";
   } catch (error) {
     console.error("[i18n] Failed to resolve store locale in middleware.", error);
     return null;

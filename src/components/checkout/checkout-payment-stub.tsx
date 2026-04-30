@@ -76,6 +76,13 @@ type CheckoutDraft = {
 };
 
 type PaymentMethod = "cod" | "mfs";
+type PaymentOption = {
+  id: PaymentMethod;
+  title: string;
+  description: string;
+  disabled: boolean;
+  showComingSoon: boolean;
+};
 
 export function CheckoutPaymentStub() {
   const t = useTranslations("checkout");
@@ -262,9 +269,9 @@ export function CheckoutPaymentStub() {
           <legend className="text-base font-semibold text-neutral-950">{t("paymentMethodSection")}</legend>
           <div className="mt-4 grid gap-3">
             {(() => {
-              const options = [
+              const options: PaymentOption[] = [
                 {
-                  id: "cod" as const,
+                  id: "cod",
                   title: t("paymentCodTitle"),
                   description: requiresPrepayment ? t("paymentCodDisabledPrepayment") : t("paymentCodDescription"),
                   disabled: requiresPrepayment,
@@ -273,7 +280,7 @@ export function CheckoutPaymentStub() {
               ];
               if (requiresPrepayment) {
                 options.push({
-                  id: "mfs" as const,
+                  id: "mfs",
                   title: t("paymentMfsTitle"),
                   description:
                     resolvedPrepayment === "full"

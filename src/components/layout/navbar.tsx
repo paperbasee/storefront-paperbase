@@ -38,7 +38,7 @@ export async function Navbar() {
     <header className="sticky top-0 z-40 w-full min-w-0 overflow-x-clip bg-header text-white pt-[env(safe-area-inset-top,0px)] ps-[env(safe-area-inset-left,0px)] pe-[env(safe-area-inset-right,0px)]">
       <div className="bg-[#e30613]">
         <PageContainer>
-          <p className="flex items-center justify-center gap-3 py-2 text-center text-[11px] font-medium uppercase tracking-[0.14em] text-white">
+          <p className="flex items-center justify-center gap-3 py-2 text-center text-[11px] font-medium tracking-normal text-white">
             {topNotice}
           </p>
         </PageContainer>
