@@ -25,7 +25,7 @@ export async function placeholderMetadata(locale: string, titleKey: PlaceholderT
   const common = await getTranslations({ locale, namespace: "common" });
 
   return {
-    title: `${t(`titles.${titleKey}`)} · ${common("brand")}`,
+    title: `${t(`titles.${titleKey}`)} - ${common("brand")}`,
     description: t("message"),
   };
 }

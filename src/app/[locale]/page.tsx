@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import { ProductCard } from "@/components/common/product-card";
 import { PageContainer } from "@/components/layout/page-container";
+import { BannerImageSlider } from "@/components/marketing/banner-image-slider";
 import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
 import { getStorefrontHomeCategorySections } from "@/lib/products";
@@ -10,54 +11,28 @@ import { getStorefrontBanners } from "@/lib/storefront";
 import type { PaperbaseBanner } from "@/types/paperbase";
 
 export default async function HomePage() {
-  const [tHome, categorySections, homeTopBanners, homeMidBanners, homeBottomBanners, locale] = await Promise.all([
+  const [tHome, categorySections, homeTopBanners, homeBottomBanners, locale] = await Promise.all([
     getTranslations("home"),
     getStorefrontHomeCategorySections(),
     getStorefrontBanners("home_top"),
-    getStorefrontBanners("home_mid"),
     getStorefrontBanners("home_bottom"),
     getLocale(),
   ]);
-  const heroBanner = homeTopBanners.find((banner) => Boolean(banner.image_url)) ?? null;
-  const hasBottomBanners = homeBottomBanners.length > 0;
-
-  function BannerBlock({ banners }: { banners: PaperbaseBanner[] }) {
-    if (banners.length === 0) {
-      return null;
+  const bannerHasAnyImage = (banner: PaperbaseBanner) =>
+    Boolean(banner.image_url) || banner.images.some((item) => Boolean(item.image_url));
+  const toBannerSlides = (banner: PaperbaseBanner) => {
+    const fromApiImages = banner.images.filter((item) => Boolean(item.image_url));
+    if (fromApiImages.length > 0) {
+      return fromApiImages;
     }
+    return banner.image_url
+      ? [{ public_id: banner.public_id, image_url: banner.image_url, order: 0 }]
+      : [];
+  };
 
-    return (
-      <div className="space-y-4 md:space-y-6">
-        {banners.map((banner) => (
-          <div key={banner.public_id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-            {banner.image_url ? (
-              <div className="relative">
-                <Image
-                  src={banner.image_url}
-                  alt={banner.title?.trim() ? banner.title : tHome("headline")}
-                  width={2400}
-                  height={900}
-                  sizes="100vw"
-                  unoptimized
-                  className="block h-auto w-full max-w-full"
-                  style={{ width: "100%", height: "auto" }}
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent px-4 pb-4 pt-10 text-white md:px-6 md:pb-6">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                    <p className="text-pretty text-base font-semibold leading-snug md:text-lg">{banner.title}</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between md:gap-5 md:p-6">
-                <p className="text-pretty text-base font-semibold leading-snug text-text md:text-lg">{banner.title}</p>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
+  const heroBanner = homeTopBanners.find((banner) => bannerHasAnyImage(banner)) ?? null;
+  const hasBottomBanners = homeBottomBanners.length > 0;
+  const heroSlides = heroBanner ? toBannerSlides(heroBanner) : [];
 
   function FullBleedBannerBlock({ banners }: { banners: PaperbaseBanner[] }) {
     if (banners.length === 0) {
@@ -68,23 +43,16 @@ export default async function HomePage() {
       <div className="w-full space-y-6 md:space-y-8">
         {banners.map((banner) => (
           <section key={banner.public_id} className="w-full">
-            {banner.image_url ? (
+            {bannerHasAnyImage(banner) ? (
               <div className="relative w-full">
-                <Image
-                  src={banner.image_url}
-                  alt={banner.title?.trim() ? banner.title : tHome("headline")}
-                  width={2400}
+                <BannerImageSlider
+                  title={banner.title}
+                  headlineFallback={tHome("headline")}
+                  images={toBannerSlides(banner)}
                   height={1200}
-                  sizes="100vw"
-                  unoptimized
-                  className="block h-auto w-full max-w-full"
-                  style={{ width: "100%", height: "auto" }}
+                  viewportClassName="h-[230px] sm:h-[320px] md:h-screen"
+                  showTitleOverlay={Boolean(banner.title?.trim())}
                 />
-                {banner.title?.trim() ? (
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent px-4 pb-4 pt-10 text-white md:px-6 md:pb-6">
-                    <p className="text-pretty text-base font-semibold leading-snug md:text-lg">{banner.title}</p>
-                  </div>
-                ) : null}
               </div>
             ) : (
               <PageContainer>
@@ -103,19 +71,29 @@ export default async function HomePage() {
     <div
       className={`bg-surface ${heroBanner?.image_url ? "pt-0" : "pt-4 md:pt-6"} ${hasBottomBanners ? "pb-0" : "pb-10 md:pb-14"}`}
     >
-      {heroBanner?.image_url ? (
+      {heroBanner ? (
         <section className="mb-10 w-full md:mb-12">
-          <Image
-            src={heroBanner.image_url}
-            alt={heroBanner.title?.trim() ? heroBanner.title : tHome("headline")}
-            width={2400}
-            height={1200}
-            priority
-            sizes="100vw"
-            unoptimized
-            className="block h-auto w-full max-w-full"
-            style={{ width: "100%", height: "auto" }}
-          />
+          {heroSlides.length > 0 ? (
+            <BannerImageSlider
+              title={heroBanner.title}
+              headlineFallback={tHome("headline")}
+              images={heroSlides}
+              priority
+              height={1200}
+              viewportClassName="h-[230px] sm:h-[320px] md:h-screen"
+            />
+          ) : (
+            <Image
+              src={heroBanner.image_url!}
+              alt={heroBanner.title?.trim() ? heroBanner.title : tHome("headline")}
+              width={2400}
+              height={1200}
+              priority
+              sizes="100vw"
+              className="block h-auto w-full max-w-full"
+              style={{ width: "100%", height: "auto" }}
+            />
+          )}
         </section>
       ) : null}
 
@@ -144,6 +122,7 @@ export default async function HomePage() {
                         product={product}
                         locale={locale as Locale}
                         priority={sectionIdx === 0 && productIdx < 4}
+                        aosDelay={(productIdx + 1) * 100}
                       />
                     ))}
                   </div>
@@ -158,11 +137,6 @@ export default async function HomePage() {
                     </div>
                   ) : null}
 
-                  {sectionIdx === 0 ? (
-                    <div className="pt-2 md:pt-4">
-                      <BannerBlock banners={homeMidBanners} />
-                    </div>
-                  ) : null}
                 </div>
               ))}
             </>

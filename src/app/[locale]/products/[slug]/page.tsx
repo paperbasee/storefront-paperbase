@@ -37,13 +37,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {};
   }
 
-  const product = await getStorefrontProductDetail(slug);
+  const [product, store, tMeta] = await Promise.all([
+    getStorefrontProductDetail(slug),
+    getStorefrontStorePublic(),
+    getTranslations({ locale, namespace: "metadata" }),
+  ]);
   if (!product) {
     return {};
   }
 
+  const storeName = store.store_name?.trim() || tMeta("fallbackStoreName");
   return {
-    title: `${product.name} · Sarar Global`,
+    title: `${product.name} - ${storeName}`,
     description: product.description || product.name,
   };
 }
@@ -109,7 +114,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <section className="bg-white pb-12 lg:pb-20">
         <PageContainer>
           {/* Breadcrumb */}
-          <nav className="py-4 text-sm text-neutral-400" aria-label="Breadcrumb">
+          <nav className="py-4 text-sm text-neutral-400" aria-label={tDetail("breadcrumbAria")}>
             <ol className="flex flex-wrap items-center gap-1">
               <li>
                 <Link href="/" className="transition-colors hover:text-primary">
@@ -211,19 +216,19 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 <div className="flex flex-col items-center gap-1 text-center">
                   <Truck className="size-5 text-primary" strokeWidth={1.8} />
                   <span className="text-[10px] font-semibold leading-tight text-neutral-500">
-                    Fast Delivery
+                    {tDetail("trustFastDelivery")}
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-1 text-center">
                   <RotateCcw className="size-5 text-primary" strokeWidth={1.8} />
                   <span className="text-[10px] font-semibold leading-tight text-neutral-500">
-                    Easy Returns
+                    {tDetail("trustEasyReturns")}
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-1 text-center">
                   <ShieldCheck className="size-5 text-primary" strokeWidth={1.8} />
                   <span className="text-[10px] font-semibold leading-tight text-neutral-500">
-                    Secure Payment
+                    {tDetail("trustSecurePayment")}
                   </span>
                 </div>
               </div>
@@ -249,8 +254,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
               {tDetail("relatedProductsTitle")}
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {relatedProducts.map((related) => (
-                <ProductCard key={related.public_id} product={related} />
+              {relatedProducts.map((related, productIdx) => (
+                <ProductCard key={related.public_id} product={related} aosDelay={(productIdx + 1) * 100} />
               ))}
             </div>
           </PageContainer>

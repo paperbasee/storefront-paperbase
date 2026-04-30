@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Dialog } from "radix-ui"
 import { X } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { cn } from "@/lib/utils"
 
@@ -34,9 +35,26 @@ const DialogContent = React.forwardRef<
   React.ComponentRef<typeof Dialog.Content>,
   DialogContentProps
 >(({ className, children, showCloseButton = true, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <Dialog.Content
+  <DialogContentInner
+    ref={ref}
+    className={className}
+    showCloseButton={showCloseButton}
+    {...props}
+  >
+    {children}
+  </DialogContentInner>
+))
+DialogContent.displayName = Dialog.Content.displayName
+
+const DialogContentInner = React.forwardRef<
+  React.ComponentRef<typeof Dialog.Content>,
+  DialogContentProps
+>(({ className, children, showCloseButton = true, ...props }, ref) => {
+  const tCommon = useTranslations("common")
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <Dialog.Content
       ref={ref}
       className={cn(
         "fixed z-50 grid w-full gap-4 bg-white shadow-lg duration-200",
@@ -55,16 +73,17 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      {showCloseButton ? (
-        <Dialog.Close className="absolute right-4 top-4 rounded-full p-1 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
-          <X className="size-4" strokeWidth={2} aria-hidden />
-          <span className="sr-only">Close</span>
-        </Dialog.Close>
-      ) : null}
-    </Dialog.Content>
-  </DialogPortal>
-))
-DialogContent.displayName = Dialog.Content.displayName
+        {showCloseButton ? (
+          <Dialog.Close className="absolute right-4 top-4 rounded-full p-1 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+            <X className="size-4" strokeWidth={2} aria-hidden />
+            <span className="sr-only">{tCommon("close")}</span>
+          </Dialog.Close>
+        ) : null}
+      </Dialog.Content>
+    </DialogPortal>
+  )
+})
+DialogContentInner.displayName = "DialogContentInner"
 
 function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("flex flex-col gap-1.5 pr-6", className)} {...props} />

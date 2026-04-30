@@ -2,9 +2,11 @@
 
 import Lottie from "lottie-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 
 import { Link, type Locale } from "@/i18n/routing";
+import { PaperbaseApiError, formatPaperbaseError } from "@/lib/api/paperbase-errors";
+import { apiFetch } from "@/lib/client/api";
 import { formatMoney } from "@/lib/format";
 import type { PaperbaseOrderCreateResponse } from "@/types/paperbase";
 
@@ -54,12 +56,134 @@ type CheckoutOrderSuccessProps = {
   mfsProvider?: CheckoutMfsSuccessProvider | null;
 };
 
+type InvoiceStatusResponse = {
+  ready: boolean;
+  url: string;
+  message?: string;
+};
+
+type InvoiceState =
+  | { status: "idle" }
+  | { status: "preparing" }
+  | { status: "ready"; url: string }
+  | { status: "opening"; url: string }
+  | { status: "error"; reason: string };
+
 /**
  * Order-placed success panel (Lottie, summary card, actions) — same layout as COD checkout success.
  */
 export function CheckoutOrderSuccess({ order, paymentMethod, mfsProvider }: CheckoutOrderSuccessProps) {
   const t = useTranslations("checkout");
   const locale = useLocale() as Locale;
+  const [invoiceState, dispatchInvoiceState] = useReducer(
+    (_prev: InvoiceState, next: InvoiceState) => next,
+    { status: "idle" } as InvoiceState,
+  );
+  const invoiceCache = useRef(new Map<string, string>());
+  const orderId = order.public_id;
+
+  async function waitForInvoice(signal: AbortSignal): Promise<string> {
+    const delays = [1500, 3000, 5000, 8000, 12000, 12000];
+    for (const delay of delays) {
+      if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+      const res = await fetch(`/api/orders/${orderId}/invoice/status`, { cache: "no-store", signal });
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const data = (await res.json()) as InvoiceStatusResponse;
+      if (data.ready === true && data.url) return data.url;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+    throw new Error("Invoice generation timed out");
+  }
+
+  useEffect(() => {
+    if (invoiceState.status !== "preparing") return;
+    const controller = new AbortController();
+    waitForInvoice(controller.signal)
+      .then((url) => {
+        invoiceCache.current.set(orderId, url);
+        dispatchInvoiceState({ status: "ready", url });
+      })
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        dispatchInvoiceState({
+          status: "error",
+          reason: err instanceof Error ? err.message : "Invoice preparation failed",
+        });
+      });
+    return () => controller.abort();
+  }, [invoiceState.status, orderId]);
+
+  async function startInvoiceFlow() {
+    const cachedUrl = invoiceCache.current.get(orderId);
+    if (cachedUrl) {
+      dispatchInvoiceState({ status: "ready", url: cachedUrl });
+      return;
+    }
+    dispatchInvoiceState({ status: "preparing" });
+    try {
+      const response = await apiFetch(`/orders/${orderId}/invoice`, {
+        method: "GET",
+        cache: "no-store",
+      });
+      const payload = (await response.json().catch(() => ({}))) as InvoiceStatusResponse & {
+        detail?: string;
+      };
+      if (response.ok && payload.ready && payload.url) {
+        invoiceCache.current.set(orderId, payload.url);
+        dispatchInvoiceState({ status: "ready", url: payload.url });
+        return;
+      }
+      if (response.status === 202) return;
+      throw new PaperbaseApiError(
+        payload.detail || "Invoice endpoint failed",
+        response.status,
+        payload as Record<string, unknown>,
+      );
+    } catch (error) {
+      dispatchInvoiceState({ status: "error", reason: formatPaperbaseError(error) });
+    }
+  }
+
+  async function handleInvoiceClick() {
+    switch (invoiceState.status) {
+      case "idle":
+        await startInvoiceFlow();
+        break;
+      case "ready":
+        window.location.assign(`/api/orders/${orderId}/invoice/download`);
+        dispatchInvoiceState({ status: "opening", url: invoiceState.url });
+        break;
+      case "error":
+        dispatchInvoiceState({ status: "idle" });
+        await startInvoiceFlow();
+        break;
+      case "preparing":
+      case "opening":
+        break;
+      default:
+        break;
+    }
+  }
+
+  const invoiceBusy = invoiceState.status === "preparing" || invoiceState.status === "opening";
+  const invoiceButtonLabel =
+    invoiceState.status === "preparing"
+      ? t("invoiceButtonGenerating")
+      : invoiceState.status === "ready"
+        ? t("invoiceButtonSave")
+        : invoiceState.status === "opening"
+          ? t("invoiceButtonSave")
+          : invoiceState.status === "error"
+            ? t("invoiceButtonRetryDownload")
+            : t("invoiceButtonGet");
+  const invoiceMessage =
+    invoiceState.status === "preparing"
+      ? t("invoiceGeneratingMessage")
+      : invoiceState.status === "error"
+        ? invoiceState.reason
+        : invoiceState.status === "ready" || invoiceState.status === "opening"
+          ? t("invoiceDownloaded")
+          : null;
 
   return (
     <div className="flex flex-col items-center text-center">
@@ -120,13 +244,15 @@ export function CheckoutOrderSuccess({ order, paymentMethod, mfsProvider }: Chec
 
       <button
         type="button"
-        className="mt-8 inline-flex h-12 w-full max-w-xs items-center justify-center rounded-md border border-neutral-300 bg-white px-6 text-sm font-semibold text-neutral-800 transition-colors hover:bg-neutral-50"
-        onClick={() => {
-          /* Receipt download — not yet implemented */
-        }}
+        className="mt-8 inline-flex h-12 w-full max-w-xs items-center justify-center rounded-md border border-neutral-300 bg-white px-6 text-sm font-semibold text-neutral-800 transition-colors hover:bg-neutral-50 disabled:opacity-60"
+        onClick={() => void handleInvoiceClick()}
+        disabled={invoiceBusy}
       >
-        {t("downloadReceipt")}
+        {invoiceButtonLabel}
       </button>
+      {invoiceMessage ? (
+        <p className="mt-2 max-w-xs text-center text-xs text-neutral-600">{invoiceMessage}</p>
+      ) : null}
 
       <div className="mt-4 flex w-full max-w-xs justify-center">
         <Link

@@ -123,7 +123,7 @@ export function CheckoutPaymentStub() {
 
   async function handlePlaceOrder() {
     if (!draft) {
-      setErrorText("Missing checkout details. Please go back to shipping.");
+      setErrorText(t("errorMissingCheckoutDetails"));
       return;
     }
     setLoading(true);
@@ -172,7 +172,7 @@ export function CheckoutPaymentStub() {
   async function handleContinueToMfsPayment() {
     if (loading) return;
     if (!draft) {
-      setErrorText("Missing checkout details. Please go back to shipping.");
+      setErrorText(t("errorMissingCheckoutDetails"));
       return;
     }
     setLoading(true);
@@ -270,18 +270,19 @@ export function CheckoutPaymentStub() {
                   disabled: requiresPrepayment,
                   showComingSoon: false,
                 },
-                {
+              ];
+              if (requiresPrepayment) {
+                options.push({
                   id: "mfs" as const,
                   title: t("paymentMfsTitle"),
-                  description: requiresPrepayment
-                    ? resolvedPrepayment === "full"
+                  description:
+                    resolvedPrepayment === "full"
                       ? t("paymentMfsPrepayFullDescription")
-                      : t("paymentMfsPrepayDeliveryDescription")
-                    : t("paymentMfsComingSoonHint"),
-                  disabled: !requiresPrepayment,
-                  showComingSoon: !requiresPrepayment,
-                },
-              ];
+                      : t("paymentMfsPrepayDeliveryDescription"),
+                  disabled: false,
+                  showComingSoon: false,
+                });
+              }
               return options.map((option) => {
                 const disabled = option.disabled;
                 const selected = !disabled && paymentMethod === option.id;

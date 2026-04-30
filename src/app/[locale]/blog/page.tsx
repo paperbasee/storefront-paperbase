@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   ]);
 
   return {
-    title: `${t("metaTitle")} · ${common("brand")}`,
+    title: `${t("metaTitle")} - ${common("brand")}`,
     description: t("metaDescription"),
   };
 }

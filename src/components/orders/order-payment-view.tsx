@@ -1,11 +1,11 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 
 import { Link, type Locale } from "@/i18n/routing";
 import { PaperbaseApiError, formatPaperbaseError } from "@/lib/api/paperbase-errors";
-import { apiFetchJson } from "@/lib/client/api";
+import { apiFetch, apiFetchJson } from "@/lib/client/api";
 import { formatMoney } from "@/lib/format";
 import { triggerPurchase } from "@/lib/tracker";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,20 @@ type FieldErrors = {
   transaction_id?: string;
   payer_number?: string;
 };
+
+type InvoiceStatusResponse = {
+  ready: boolean;
+  url: string;
+  timeout?: boolean;
+  message?: string;
+};
+
+type InvoiceState =
+  | { status: "idle" }
+  | { status: "preparing" }
+  | { status: "ready"; url: string }
+  | { status: "opening"; url: string }
+  | { status: "error"; reason: string };
 
 const PHONE_SHAPE = /^[0-9+\-\s]{6,32}$/;
 
@@ -184,8 +198,7 @@ export function OrderPaymentView({ publicId }: OrderPaymentViewProps) {
             setFieldErrors(remote);
           } else if (isAlreadySubmitted(error)) {
             // Backend says this order already has a pending / verified
-            // submission. Surface a friendly message and switch out of the
-            // form view — no GET endpoint exists to re-sync the latest state.
+            // submission. Surface a friendly message and switch out of the form view.
             setResubmitting(false);
             setSubmitError(t("alreadySubmittedMessage"));
           } else {
@@ -555,11 +568,148 @@ function ConfirmedView({
 }) {
   const t = useTranslations("orderPayment");
   const tCheckout = useTranslations("checkout");
+  const [invoiceState, dispatchInvoiceState] = useReducer(
+    (_prev: InvoiceState, next: InvoiceState) => next,
+    { status: "idle" } as InvoiceState,
+  );
+  const invoiceCache = useRef(new Map<string, string>());
+  const orderId = order.public_id;
+
+  async function waitForInvoice(orderId: string, signal: AbortSignal): Promise<string> {
+    const delays = [1500, 3000, 5000, 8000, 12000, 12000];
+    for (const delay of delays) {
+      if (signal.aborted) {
+        throw new DOMException("Aborted", "AbortError");
+      }
+      const res = await fetch(`/api/orders/${orderId}/invoice/status`, {
+        cache: "no-store",
+        signal,
+      });
+      if (!res.ok) {
+        throw new Error(`Status ${res.status}`);
+      }
+      const data = (await res.json()) as InvoiceStatusResponse;
+      if (data.ready === true && data.url) {
+        return data.url;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+    throw new Error("Invoice generation timed out");
+  }
+
+  useEffect(() => {
+    if (invoiceState.status !== "preparing") return;
+    const controller = new AbortController();
+    waitForInvoice(orderId, controller.signal)
+      .then((url) => {
+        invoiceCache.current.set(orderId, url);
+        dispatchInvoiceState({ status: "ready", url });
+      })
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        const reason = err instanceof Error ? err.message : "Invoice preparation failed";
+        dispatchInvoiceState({ status: "error", reason });
+      });
+    return () => controller.abort();
+  }, [invoiceState.status, orderId]);
+
+  async function startInvoiceFlow() {
+    const cachedUrl = invoiceCache.current.get(orderId);
+    if (cachedUrl) {
+      dispatchInvoiceState({ status: "ready", url: cachedUrl });
+      return;
+    }
+    dispatchInvoiceState({ status: "preparing" });
+    try {
+      const response = await apiFetch(`/orders/${orderId}/invoice`, {
+        method: "GET",
+        cache: "no-store",
+      });
+      const payload = (await response.json().catch(() => ({}))) as InvoiceStatusResponse & {
+        detail?: string;
+      };
+      if (response.ok && payload.ready && payload.url) {
+        invoiceCache.current.set(orderId, payload.url);
+        dispatchInvoiceState({ status: "ready", url: payload.url });
+        return;
+      }
+      if (response.status === 202) {
+        return;
+      }
+      throw new PaperbaseApiError(
+        payload.detail || "Invoice endpoint failed",
+        response.status,
+        payload as Record<string, unknown>,
+      );
+    } catch (error) {
+      dispatchInvoiceState({ status: "error", reason: formatPaperbaseError(error) });
+    }
+  }
+
+  async function handleInvoiceClick() {
+    switch (invoiceState.status) {
+      case "idle":
+        await startInvoiceFlow();
+        break;
+      case "ready":
+        window.location.assign(`/api/orders/${orderId}/invoice/download`);
+        dispatchInvoiceState({ status: "opening", url: invoiceState.url });
+        break;
+      case "error":
+        dispatchInvoiceState({ status: "idle" });
+        await startInvoiceFlow();
+        break;
+      case "preparing":
+      case "opening":
+        break;
+      default:
+        break;
+    }
+  }
+
+  const invoiceBusy = invoiceState.status === "preparing" || invoiceState.status === "opening";
+  const invoiceButtonLabel =
+    invoiceState.status === "preparing"
+      ? tCheckout("invoiceButtonGenerating")
+      : invoiceState.status === "ready"
+        ? tCheckout("invoiceButtonSave")
+        : invoiceState.status === "opening"
+          ? tCheckout("invoiceButtonSave")
+          : invoiceState.status === "error"
+            ? tCheckout("invoiceButtonRetryDownload")
+            : tCheckout("invoiceButtonGet");
+  const invoiceMessage =
+    invoiceState.status === "preparing"
+      ? tCheckout("invoiceGeneratingMessage")
+      : invoiceState.status === "error"
+        ? invoiceState.reason
+        : invoiceState.status === "ready" || invoiceState.status === "opening"
+          ? tCheckout("invoiceDownloaded")
+          : null;
+
   return (
     <>
       <h1 className="text-xl font-semibold text-text">{t("confirmedTitle")}</h1>
       <p className="mt-3 text-sm text-neutral-600">{t("confirmedBody")}</p>
       <OrderReceiptList order={order} locale={locale} />
+      <button
+        type="button"
+        className="mt-6 inline-flex h-11 items-center justify-center rounded-md border border-neutral-300 bg-white px-5 text-sm font-semibold text-neutral-800 transition-colors hover:bg-neutral-50 disabled:opacity-60"
+        onClick={() => void handleInvoiceClick()}
+        disabled={invoiceBusy}
+      >
+        {invoiceButtonLabel}
+      </button>
+      {invoiceState.status === "error" ? (
+        <button
+          type="button"
+          onClick={() => dispatchInvoiceState({ status: "idle" })}
+          className="mt-3 inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+        >
+          {tCheckout("invoiceButtonRetryDownload")}
+        </button>
+      ) : null}
+      {invoiceMessage ? <p className="mt-2 text-xs text-neutral-600">{invoiceMessage}</p> : null}
       <Link
         href="/"
         className="mt-8 inline-flex rounded-md bg-neutral-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-neutral-900"

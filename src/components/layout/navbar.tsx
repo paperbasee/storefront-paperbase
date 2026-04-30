@@ -1,16 +1,17 @@
 import { getTranslations } from "next-intl/server";
 
 import { AccountNavLink } from "@/components/common/account-nav-link";
-import { CartPanelHost, CartTrigger, MobileFloatingCartButton, MobileScrollToTopButton } from "@/components/common/cart-drawer-trigger";
+import { CartPanelHost, CartTrigger } from "@/components/common/cart-drawer-trigger";
 import { Link } from "@/i18n/routing";
+import { DesktopSearchOverlay } from "@/components/layout/desktop-search-overlay";
 import { DesktopCategoryMegaNav } from "@/components/layout/desktop-category-mega-nav";
-import { HeaderSearch } from "@/components/layout/header-search";
+import { DesktopCategoryScrollVisibility } from "@/components/layout/desktop-category-scroll-visibility";
 import { MobileSearchOverlay } from "@/components/layout/mobile-search-overlay";
 import { MobileNavDrawer } from "@/components/layout/mobile-nav-drawer";
 import { PageContainer } from "@/components/layout/page-container";
 import { getStorefrontHeaderCategories, getStorefrontNotifications, getStorefrontStorePublic } from "@/lib/storefront";
 
-/** First word on top, remainder below (e.g. "Sarar Global" → Sarar / Global). */
+/** First word on top, remainder below (e.g. "Modern Store" -> Modern / Store). */
 function splitBrandName(name: string): { top: string; bottom: string } {
   const trimmed = name.trim();
   const m = trimmed.match(/^(\S+)\s+(.+)$/);
@@ -35,76 +36,81 @@ export async function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full min-w-0 overflow-x-clip bg-header text-white pt-[env(safe-area-inset-top,0px)] ps-[env(safe-area-inset-left,0px)] pe-[env(safe-area-inset-right,0px)]">
-      <div className="bg-header/95">
+      <div className="bg-[#e30613]">
         <PageContainer>
-          <p className="py-1.5 text-center text-[11px] tracking-wide text-white/90">
+          <p className="flex items-center justify-center gap-3 py-2 text-center text-[11px] font-medium uppercase tracking-[0.14em] text-white">
             {topNotice}
           </p>
         </PageContainer>
       </div>
 
       <PageContainer>
-        <div className="flex min-h-20 items-center gap-3 py-3 md:gap-4">
-          <div className="grid w-full min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:hidden">
+        <div className="flex min-h-14 items-center gap-3 py-1.5 md:min-h-20 md:gap-4 md:py-3">
+          <div className="grid w-full min-w-0 flex-1 grid-cols-[5.5rem_minmax(0,1fr)_5.5rem] items-center gap-2 md:hidden">
             <MobileNavDrawer
               menuTitle={nav("products")}
-              backHomeLabel="Back to home"
               categories={categories}
             />
-            <div className="min-w-0">
+            <div className="flex min-w-0 items-center justify-center">
+              <Link
+                href="/"
+                className="inline-flex min-w-0 items-center justify-center rounded-md text-white"
+                aria-label={store.store_name}
+              >
+                <span className="block max-w-full truncate whitespace-nowrap text-base font-medium uppercase tracking-[0.06em] text-white leading-tight">
+                  {store.store_name}
+                </span>
+              </Link>
+            </div>
+            <div className="flex items-center justify-end gap-1">
               <MobileSearchOverlay
+                compact
                 placeholder={search("placeholder")}
                 openSearchAriaLabel={nav("openSearch")}
                 submitAriaLabel={nav("openSearch")}
                 closeLabel={common("close")}
               />
+              <CartTrigger variant="mobile" />
             </div>
-            <AccountNavLink variant="mobile" />
           </div>
 
-          <Link
-            href="/"
-            className="hidden shrink-0 items-center leading-tight md:inline-flex"
-            aria-label={store.store_name}
-          >
-            <span className="flex flex-col justify-center gap-0.5">
-              <span className="text-sm font-extrabold uppercase tracking-wide leading-tight text-white">{brandTop}</span>
-              {brandBottom ? (
-                <span className="text-sm font-extrabold uppercase tracking-wide leading-tight text-white">{brandBottom}</span>
-              ) : null}
-            </span>
-          </Link>
-
-          <div className="hidden min-w-0 flex-1 md:block">
-            <HeaderSearch
+          <div className="hidden w-full min-w-0 flex-1 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
+            <DesktopSearchOverlay
               placeholder={search("placeholder")}
+              openSearchAriaLabel={nav("openSearch")}
               submitAriaLabel={nav("openSearch")}
+              closeLabel={common("close")}
             />
-          </div>
 
-          <div className="hidden shrink-0 items-center gap-2 md:flex md:gap-3">
-            <div className="hidden lg:block">
-              <p className="text-[11px] uppercase tracking-wide text-white/75">{common("callUsNow")}</p>
-              <p className="text-sm font-semibold">{store.phone}</p>
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center leading-tight"
+              aria-label={store.store_name}
+            >
+              <span className="block max-w-full truncate whitespace-nowrap text-xl font-medium uppercase tracking-[0.08em] leading-tight text-white">
+                {store.store_name}
+              </span>
+            </Link>
+
+            <div className="flex items-center justify-end gap-2 md:gap-3">
+              <AccountNavLink variant="desktop" />
+              <CartTrigger variant="desktop" />
             </div>
-            <AccountNavLink variant="desktop" />
-            <CartTrigger variant="desktop" />
           </div>
         </div>
       </PageContainer>
+      <div className="h-px w-full bg-black/15 md:hidden" />
 
       <CartPanelHost />
-      <MobileScrollToTopButton />
-      <MobileFloatingCartButton />
 
-      <div className="hidden border-t border-white/15 bg-header md:block">
+      <DesktopCategoryScrollVisibility>
         <DesktopCategoryMegaNav
           ariaLabel={nav("products")}
           browseEyebrow={nav("products")}
           newBadgeLabel={product("newBadge")}
           categories={categories}
         />
-      </div>
+      </DesktopCategoryScrollVisibility>
     </header>
   );
 }

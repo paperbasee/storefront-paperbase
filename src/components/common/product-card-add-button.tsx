@@ -5,7 +5,7 @@ import type { Product } from "@/types/product";
 
 type ProductCardAddButtonProps = {
   product: Product;
-  variant?: "default" | "card";
+  variant?: "default" | "card" | "icon";
 };
 
 /**

@@ -1,23 +1,25 @@
 {
   "metadata": {
-    "title": "Sarar Global Storefront",
-    "description": "Premium products crafted for everyday life."
+    "title": "Storefront",
+    "description": "Premium products crafted for everyday life.",
+    "fallbackStoreName": "Storefront"
   },
   "common": {
-    "brand": "Sarar Global",
+    "brand": "Storefront",
     "currency": "USD",
     "language": "Language",
     "empty": "Nothing to show yet.",
     "close": "Close",
-    "callUsNow": "Call us now"
+    "callUsNow": "Call us now",
+    "scrollToTop": "Scroll to top"
   },
   "blog": {
     "metaTitle": "Blog",
-    "metaDescription": "Stories, guides, and updates from Sarar Global — sustainability, lifestyle, and how we serve customers across Bangladesh.",
+    "metaDescription": "Stories, guides, and updates from our store — sustainability, lifestyle, and how we serve customers across Bangladesh.",
     "badge": "Blog",
     "heroTitle": "Discover our latest news",
     "heroIntro": "Ideas for better living, behind-the-scenes notes from our team, and practical guides — curated for our community.",
-    "sectionTitle": "Stories from Sarar Global",
+    "sectionTitle": "Stories from our store",
     "featuredHeading": "Featured",
     "latestHeading": "Latest",
     "searchPlaceholder": "Search articles…",
@@ -41,7 +43,11 @@
     "account": "Account",
     "cart": "Cart",
     "flashSale": "Flash Sale",
-    "openSearch": "Open search"
+    "openSearch": "Open search",
+    "backToHome": "Back to home",
+    "closeMenu": "Close menu",
+    "expandCategory": "Expand {name}",
+    "collapseCategory": "Collapse {name}"
   },
   "search": {
     "title": "Search",
@@ -84,7 +90,9 @@
     "increaseQuantity": "Increase quantity",
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantityDisabledMax": "Maximum stock reached — cannot add more",
-    "decreaseQuantityDisabledMin": "Minimum quantity is 1 — use remove to delete the item"
+    "decreaseQuantityDisabledMin": "Minimum quantity is 1 — use remove to delete the item",
+    "galleryAria": "Product images",
+    "viewImageAria": "View image {index}"
   },
   "products": {
     "royalSapphireKettle": "Royal Sapphire Kettle",
@@ -107,7 +115,7 @@
     "categoryKitchen": "Kitchen essentials",
     "categoryTableware": "Tableware",
     "categoryHomeTextiles": "Home textiles",
-    "brandMark": "Sarar",
+    "brandMark": "Store",
     "brandMarkAria": "Brand",
     "producerCodeLabel": "Manufacturer code",
     "skuSelectOptions": "Select options to view SKU",
@@ -129,11 +137,15 @@
     "swatchGraphite": "Graphite finish",
     "sectionProductDetails": "Product details",
     "sectionExtraDetails": "Extra details",
-    "relatedProductsTitle": "You may also like"
+    "relatedProductsTitle": "You may also like",
+    "breadcrumbAria": "Breadcrumb",
+    "trustFastDelivery": "Fast Delivery",
+    "trustEasyReturns": "Easy Returns",
+    "trustSecurePayment": "Secure Payment"
   },
   "productCopy": {
     "royalSapphireKettle": {
-      "byline": "Curated by Sarar Global design studio",
+      "byline": "Curated by our design studio",
       "description": "A refined kettle collection piece with sapphire-toned accents and a balanced pour. Designed for daily rituals and quiet countertops, it pairs durable construction with a silhouette that feels at home in both modern kitchens and warm, traditional spaces.",
       "details": "Stainless steel body with heat-resistant handle. Boil-dry protection and wide opening for easy cleaning. Compatible with induction and conventional cooktops where applicable.",
       "dimensions": "Capacity 1.7 L. Overall height 25 cm, base diameter 16 cm. Cord length approximately 75 cm.",
@@ -193,7 +205,7 @@
     "phone": "Phone number",
     "thana": "City / Thana",
     "district": "District",
-    "dialOption_bd": "BD +880",
+    "dialOption_bd": "BD +88",
     "freeShipping": "Free Shipping",
     "freeShippingDays": "7–20 days",
     "expressShipping": "Express Shipping",
@@ -298,7 +310,20 @@
     "orderSuccessMessage": "You have successfully placed your order.",
     "orderSuccessDeliveryTo": "Delivery to",
     "orderSuccessMoreItems": "+{count} more",
-    "downloadReceipt": "Download receipt"
+    "downloadReceipt": "Download receipt",
+    "invoiceGenerating": "Preparing PDF...",
+    "invoiceGeneratingMessage": "Your invoice is being prepared. Please wait a few seconds.",
+    "invoiceStillGenerating": "Your invoice is still being prepared. Please try again shortly.",
+    "invoiceDownloaded": "Invoice downloaded.",
+    "invoiceButtonGenerating": "Generating...",
+    "invoiceButtonSave": "Save Invoice",
+    "invoiceButtonSaving": "Saving...",
+    "invoiceButtonRetryDownload": "Retry Download",
+    "invoiceButtonGet": "Get Invoice",
+    "errorShippingZonesLoad": "Failed to load shipping zones.",
+    "errorShippingZoneOptionsLoad": "Failed to load shipping for this zone.",
+    "errorShippingZoneRequired": "Please choose a shipping zone.",
+    "errorMissingCheckoutDetails": "Missing checkout details. Please go back to shipping."
   },
   "orderPayment": {
     "metaTitle": "Complete payment",
@@ -368,7 +393,7 @@
     "addressLabel": "Address",
     "addressLine": "Dhaka, Bangladesh",
     "emailLabel": "Email",
-    "emailLine": "hello@sararglobal.com",
+    "emailLine": "hello@store.com",
     "phoneLabel": "Phone",
     "customerAccount": "Account",
     "customerCart": "Cart",
@@ -381,14 +406,10 @@
     "infoCancellation": "Cancellation policy",
     "socialFacebook": "Facebook",
     "socialInstagram": "Instagram",
-    "socialTwitter": "X",
-    "socialYoutube": "YouTube",
-    "socialLinkedin": "LinkedIn",
+    "socialWhatsapp": "WhatsApp",
     "socialTiktok": "TikTok",
-    "socialPinterest": "Pinterest",
-    "socialWebsite": "Website",
     "developedBy": "Developed by",
-    "developerName": "Mushfikur Rahman"
+    "developerName": "Store Team"
   },
   "states": {
     "loading": "Loading storefront...",
@@ -417,5 +438,31 @@
     "detailsSummary": "Technical details",
     "detailsHint": "If this keeps happening, sharing this text with support can help.",
     "digestLabel": "Reference"
+  },
+  "support": {
+    "title": "Support",
+    "intro": "Submit a support ticket and we will get back to you.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "orderNumber": "Order number",
+      "subject": "Subject",
+      "message": "Message",
+      "categoryGeneral": "General",
+      "categoryOrder": "Order",
+      "categoryPayment": "Payment",
+      "categoryShipping": "Shipping",
+      "categoryProduct": "Product",
+      "categoryTechnical": "Technical",
+      "categoryOther": "Other",
+      "priorityLow": "Low",
+      "priorityMedium": "Medium",
+      "priorityHigh": "High",
+      "priorityUrgent": "Urgent",
+      "submit": "Submit ticket",
+      "submitting": "Submitting...",
+      "submittedSuccess": "Support ticket submitted successfully."
+    }
   }
 }

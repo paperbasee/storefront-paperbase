@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { formatPaperbaseError, PaperbaseApiError } from "@/lib/api/paperbase-errors";
 import { apiFetch, apiFetchJson } from "@/lib/client/api";
 
 export function SupportTicketForm() {
+  const t = useTranslations("support.form");
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,7 +51,7 @@ export function SupportTicketForm() {
           }),
         });
       }
-      setStatus("Support ticket submitted successfully.");
+      setStatus(t("submittedSuccess"));
       form.reset();
     } catch (error) {
       setStatus(formatPaperbaseError(error));
@@ -64,30 +66,30 @@ export function SupportTicketForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <input name="name" required className={inputClass} placeholder="Name" />
-        <input name="email" type="email" required className={inputClass} placeholder="Email" />
+        <input name="name" required className={inputClass} placeholder={t("name")} />
+        <input name="email" type="email" required className={inputClass} placeholder={t("email")} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <input name="phone" className={inputClass} placeholder="Phone" />
-        <input name="order_number" className={inputClass} placeholder="Order number" />
+        <input name="phone" className={inputClass} placeholder={t("phone")} />
+        <input name="order_number" className={inputClass} placeholder={t("orderNumber")} />
       </div>
-      <input name="subject" className={inputClass} placeholder="Subject" />
-      <textarea name="message" required rows={4} className={inputClass} placeholder="Message" />
+      <input name="subject" className={inputClass} placeholder={t("subject")} />
+      <textarea name="message" required rows={4} className={inputClass} placeholder={t("message")} />
       <div className="grid gap-4 sm:grid-cols-2">
         <select name="category" defaultValue="general" className={inputClass}>
-          <option value="general">General</option>
-          <option value="order">Order</option>
-          <option value="payment">Payment</option>
-          <option value="shipping">Shipping</option>
-          <option value="product">Product</option>
-          <option value="technical">Technical</option>
-          <option value="other">Other</option>
+          <option value="general">{t("categoryGeneral")}</option>
+          <option value="order">{t("categoryOrder")}</option>
+          <option value="payment">{t("categoryPayment")}</option>
+          <option value="shipping">{t("categoryShipping")}</option>
+          <option value="product">{t("categoryProduct")}</option>
+          <option value="technical">{t("categoryTechnical")}</option>
+          <option value="other">{t("categoryOther")}</option>
         </select>
         <select name="priority" defaultValue="medium" className={inputClass}>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-          <option value="urgent">Urgent</option>
+          <option value="low">{t("priorityLow")}</option>
+          <option value="medium">{t("priorityMedium")}</option>
+          <option value="high">{t("priorityHigh")}</option>
+          <option value="urgent">{t("priorityUrgent")}</option>
         </select>
       </div>
       <input name="attachments" type="file" className={inputClass} />
@@ -96,7 +98,7 @@ export function SupportTicketForm() {
         disabled={loading}
         className="rounded-md bg-neutral-950 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
       >
-        {loading ? "Submitting..." : "Submit ticket"}
+        {loading ? t("submitting") : t("submit")}
       </button>
       {status ? <p className="text-sm text-neutral-700">{status}</p> : null}
     </form>

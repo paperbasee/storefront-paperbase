@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { Link } from "@/i18n/routing";
+import { storefrontImageUnoptimized } from "@/lib/storefront-image";
 
 type ProductCardGalleryProps = {
   urls: string[];
@@ -12,10 +13,10 @@ type ProductCardGalleryProps = {
 export function ProductCardGallery({ urls, alt, href, priority }: ProductCardGalleryProps) {
   const src =
     urls.find((u) => typeof u === "string" && u.trim().length > 0)?.trim() ?? "/placeholders/hero.svg";
-  const unoptimized = src.startsWith("http");
+  const unoptimized = storefrontImageUnoptimized(src);
 
   return (
-    <div className="relative aspect-square w-full shrink-0 bg-background">
+    <div className="relative aspect-square w-full shrink-0 border border-neutral-200 bg-transparent">
       <Link
         href={href}
         className="relative block size-full outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900/15"

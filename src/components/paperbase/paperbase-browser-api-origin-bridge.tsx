@@ -1,15 +1,13 @@
-import Script from "next/script";
-
 import {
   getBrowserPaperbaseBackendOrigin,
   PAPERBASE_PRODUCTION_API_ORIGIN,
 } from "@/lib/paperbase-public";
 
 /**
- * Rewrites browser `fetch` to Paperbase production so hosted `tracker.js`
+ * Rewrites browser `fetch` to the production API so hosted `tracker.js`
  * hits `NEXT_PUBLIC_PAPERBASE_BACKEND_ORIGIN` (e.g. http://localhost:8000).
  */
-export function PaperbaseBrowserApiOriginBridge() {
+export function getPaperbaseBrowserApiOriginBridgeScript(): string | null {
   const origin = getBrowserPaperbaseBackendOrigin();
   if (!origin) {
     return null;
@@ -20,15 +18,10 @@ export function PaperbaseBrowserApiOriginBridge() {
     rewrite: origin,
   });
 
-  return (
-    <Script
-      id="paperbase-browser-api-origin-bridge"
-      strategy="beforeInteractive"
-      dangerouslySetInnerHTML={{
-        __html: `(() => {
+  return `(() => {
   var cfg = ${cfg};
-  if (typeof window === "undefined" || window.__paperbaseFetchPatched) return;
-  window.__paperbaseFetchPatched = true;
+  if (typeof window === "undefined" || window.__storefrontFetchPatched) return;
+  window.__storefrontFetchPatched = true;
   var p = cfg.production;
   var r = String(cfg.rewrite || "");
   if (!r || !p) return;
@@ -53,8 +46,5 @@ export function PaperbaseBrowserApiOriginBridge() {
     }
     return orig.call(this, nextUrl, init);
   };
-})();`,
-      }}
-    />
-  );
+})();`;
 }

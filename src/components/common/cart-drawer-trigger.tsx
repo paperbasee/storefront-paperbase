@@ -60,6 +60,7 @@ export function CartTrigger({ variant }: CartTriggerProps) {
 
 /** Mobile-only scroll-to-top FAB; appears above the cart button when scrolled down (hidden from md up). */
 export function MobileScrollToTopButton() {
+  const tCommon = useTranslations("common");
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -72,7 +73,7 @@ export function MobileScrollToTopButton() {
     <button
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      aria-label="Scroll to top"
+      aria-label={tCommon("scrollToTop")}
       className="fixed z-40 flex size-12 items-center justify-center rounded-full border border-white/15 bg-header text-white shadow-lg transition-all duration-300 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 md:hidden"
       style={{
         bottom: "calc(max(1rem, env(safe-area-inset-bottom, 0px)) + 3.75rem + 0.625rem)",

@@ -11,6 +11,7 @@ type MobileSearchOverlayProps = {
   openSearchAriaLabel: string;
   submitAriaLabel: string;
   closeLabel: string;
+  compact?: boolean;
 };
 
 export function MobileSearchOverlay({
@@ -18,6 +19,7 @@ export function MobileSearchOverlay({
   openSearchAriaLabel,
   submitAriaLabel,
   closeLabel,
+  compact = false,
 }: MobileSearchOverlayProps) {
   const [open, setOpen] = useState(false);
   const isClient = useSyncExternalStore(
@@ -50,22 +52,35 @@ export function MobileSearchOverlay({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label={openSearchAriaLabel}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        className="flex w-full min-w-0 items-center rounded-md border border-black/5 bg-white py-1 pl-4 pr-1 text-start shadow-sm transition hover:bg-neutral-50"
-      >
-        <span className="min-h-9 min-w-0 flex-1 truncate py-2 text-sm text-text/45">{placeholder}</span>
-        <span
-          className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-white"
-          aria-hidden
+      {compact ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={openSearchAriaLabel}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border-0 bg-transparent p-0 text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 md:hidden"
         >
-          <Search className="size-[18px]" strokeWidth={2} />
-        </span>
-      </button>
+          <Search className="size-6 shrink-0" strokeWidth={1.75} aria-hidden />
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={openSearchAriaLabel}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          className="flex w-full min-w-0 items-center rounded-md border border-black/5 bg-white py-1 pl-4 pr-1 text-start shadow-sm transition hover:bg-neutral-50"
+        >
+          <span className="min-h-9 min-w-0 flex-1 truncate py-2 text-sm text-text/45">{placeholder}</span>
+          <span
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-white"
+            aria-hidden
+          >
+            <Search className="size-[18px]" strokeWidth={2} />
+          </span>
+        </button>
+      )}
 
       {open && isClient
         ? createPortal(

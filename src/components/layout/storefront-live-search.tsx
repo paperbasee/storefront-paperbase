@@ -6,6 +6,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { Link, useRouter } from "@/i18n/routing";
 import { formatMoney } from "@/lib/format";
+import { resolveStorefrontImageUrl, storefrontImageUnoptimized } from "@/lib/storefront-image";
 import type { Locale } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
@@ -68,9 +69,7 @@ export function StorefrontLiveSearch({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (mode !== "mobile") {
-      return;
-    }
+    // Auto-focus whenever this search UI mounts (mobile drawer or desktop overlay).
     const id = requestAnimationFrame(() => inputRef.current?.focus());
     return () => cancelAnimationFrame(id);
   }, [mode]);
@@ -193,6 +192,7 @@ export function StorefrontLiveSearch({
         role="search"
         className={cn(
           "flex w-full items-center rounded-md border border-black/5 bg-white py-1 ps-4 pe-1 shadow-sm",
+          mode === "desktop" && "h-10 border-black/35 bg-transparent py-0 pe-2 shadow-none",
           mode === "mobile" && "relative border-violet-200 py-1 pe-2",
         )}
         onSubmit={(e) => {
@@ -217,6 +217,7 @@ export function StorefrontLiveSearch({
           aria-autocomplete="list"
           className={cn(
             "min-h-9 min-w-0 flex-1 border-none bg-transparent py-2 text-sm text-text outline-none placeholder:text-text/45",
+            mode === "desktop" && "min-h-0 py-1 text-[12px] placeholder:text-black/35",
             mode === "mobile" && "min-h-11 py-2 pe-11 placeholder:text-neutral-400",
           )}
         />
@@ -225,6 +226,8 @@ export function StorefrontLiveSearch({
           aria-label={submitAriaLabel}
           className={cn(
             "inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-white transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+            mode === "desktop" &&
+              "size-7 rounded-sm bg-transparent text-black/55 hover:bg-transparent hover:text-black/70 focus-visible:outline-primary",
             mode === "mobile" &&
               "absolute end-2 top-1/2 z-[1] -translate-y-1/2 bg-transparent text-text hover:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
           )}
@@ -331,40 +334,43 @@ export function StorefrontLiveSearch({
             </div>
           ) : null}
 
-          {data?.products.map((p) => (
-            <Link
-              key={p.public_id}
-              href={`/products/${p.slug}`}
-              role="option"
-              aria-selected={false}
-              className="flex gap-3 px-3 py-2.5 hover:bg-neutral-50"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => {
-                setPanelOpen(false);
-                onAfterNavigate?.();
-              }}
-            >
-              <div className="relative size-12 shrink-0 overflow-hidden rounded-sm bg-neutral-100">
-                {p.image_url ? (
-                  <Image
-                    src={p.image_url}
-                    alt=""
-                    width={48}
-                    height={48}
-                    className="size-full object-cover"
-                    unoptimized={p.image_url.startsWith("http://")}
-                  />
-                ) : null}
-              </div>
-              <div className="min-w-0 flex-1 text-start">
-                <p className="truncate text-sm font-medium text-text">{p.name}</p>
-                <p className="mt-0.5 text-xs text-neutral-500">
-                  {p.brand ? `${p.brand} · ` : null}
-                  {formatMoney(p.price, locale)}
-                </p>
-              </div>
-            </Link>
-          ))}
+          {data?.products.map((p) => {
+            const imageSrc = resolveStorefrontImageUrl(p.image_url);
+            return (
+              <Link
+                key={p.public_id}
+                href={`/products/${p.slug}`}
+                role="option"
+                aria-selected={false}
+                className="flex gap-3 px-3 py-2.5 hover:bg-neutral-50"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  setPanelOpen(false);
+                  onAfterNavigate?.();
+                }}
+              >
+                <div className="relative size-12 shrink-0 overflow-hidden rounded-sm bg-neutral-100">
+                  {imageSrc ? (
+                    <Image
+                      src={imageSrc}
+                      alt=""
+                      width={48}
+                      height={48}
+                      className="size-full object-cover"
+                      unoptimized={storefrontImageUnoptimized(imageSrc)}
+                    />
+                  ) : null}
+                </div>
+                <div className="min-w-0 flex-1 text-start">
+                  <p className="truncate text-sm font-medium text-text">{p.name}</p>
+                  <p className="mt-0.5 text-xs text-neutral-500">
+                    {p.brand ? `${p.brand} · ` : null}
+                    {formatMoney(p.price, locale)}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
 
           {!loading && !error && trimmed.length >= 2 && data && !hasListContent ? (
             <p className="px-4 py-3 text-sm text-neutral-600">{t("liveNoMatches")}</p>

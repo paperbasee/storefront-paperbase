@@ -9,10 +9,10 @@ import type { PaperbaseOrderReceipt } from "@/types/paperbase";
  * We cache the latest receipt in sessionStorage so that a refresh on this page
  * preserves the correct state (form / awaiting / confirmed) instead of crashing.
  */
-export const ORDER_RECEIPT_STORAGE_KEY_PREFIX = "paperbase-order-receipt:";
+export const ORDER_RECEIPT_STORAGE_KEY_PREFIX = "storefront-order-receipt:";
 
 /** flag key (per order) to dedupe `triggerPurchase` across refreshes. */
-export const PURCHASE_FIRED_KEY_PREFIX = "paperbase-purchase-fired:";
+export const PURCHASE_FIRED_KEY_PREFIX = "storefront-purchase-fired:";
 
 function storageKey(publicId: string) {
   return `${ORDER_RECEIPT_STORAGE_KEY_PREFIX}${publicId}`;

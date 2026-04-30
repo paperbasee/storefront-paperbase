@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
-import Script from "next/script";
+import { Noto_Sans_Bengali, Poppins } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { BlogPromoPopup } from "@/components/blog/blog-promo-popup";
+import { GlobalPromoPopup } from "@/components/marketing/global-promo-popup";
+import { AosInit } from "@/components/common/aos-init";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
-import { PaperbaseBrowserApiOriginBridge } from "@/components/paperbase/paperbase-browser-api-origin-bridge";
+import { StorefrontRuntimeBoot } from "@/components/paperbase/storefront-runtime-boot";
 import { routing, type Locale } from "@/i18n/routing";
 import { getServerPaperbaseConfig } from "@/lib/server/config";
+import { getActivePopup } from "@/lib/server/paperbase";
 import { getTrackerScriptSrc } from "@/lib/server/tracking";
 import { getStorefrontStorePublic } from "@/lib/storefront";
 
@@ -21,6 +22,15 @@ const poppins = Poppins({
   subsets: ["latin"],
   variable: "--font-poppins",
   display: "swap",
+  preload: false,
+});
+
+const notoSansBengali = Noto_Sans_Bengali({
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  subsets: ["bengali"],
+  variable: "--font-noto-sans-bengali",
+  display: "swap",
+  preload: false,
 });
 
 type LocaleLayoutProps = {
@@ -38,13 +48,12 @@ export async function generateMetadata({
     return {};
   }
 
-  const [t, store] = await Promise.all([
-    getTranslations({ locale, namespace: "metadata" }),
-    getStorefrontStorePublic(),
-  ]);
+  const store = await getStorefrontStorePublic();
+  const activeLocale: Locale = store.language === "bn" ? "bn" : "en";
+  const t = await getTranslations({ locale: activeLocale, namespace: "metadata" });
 
   return {
-    title: store.seo.default_title || t("title"),
+    title: store.seo.default_title || store.store_name || t("title"),
     description: store.seo.default_description || t("description"),
   };
 }
@@ -59,32 +68,28 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     notFound();
   }
 
-  setRequestLocale(locale);
-  const [messages, store] = await Promise.all([getMessages(), getStorefrontStorePublic()]);
-  const activeLocale = locale as Locale;
+  const [store, popup] = await Promise.all([getStorefrontStorePublic(), getActivePopup()]);
+  const activeLocale: Locale = store.language === "bn" ? "bn" : "en";
+  setRequestLocale(activeLocale);
+  const messages = (await import(`../../../messages/${activeLocale}.json`)).default;
   const { publishableKey } = getServerPaperbaseConfig();
   const trackerSrc = getTrackerScriptSrc(store);
 
   return (
-    <NextIntlClientProvider locale={activeLocale} messages={messages}>
-      <PaperbaseBrowserApiOriginBridge />
-      <Script
-        id="paperbase-publishable-key"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `window.PAPERBASE_PUBLISHABLE_KEY = ${JSON.stringify(publishableKey)};`,
-        }}
-      />
-      {trackerSrc ? <Script src={trackerSrc} strategy="afterInteractive" /> : null}
-      <div
-        lang={activeLocale}
-        className={`${poppins.variable} flex min-h-screen flex-col bg-white font-sans-en`}
-      >
-        <BlogPromoPopup />
-        <Navbar />
-        <main className="flex min-h-0 flex-1 flex-col">{children}</main>
-        <Footer />
-      </div>
-    </NextIntlClientProvider>
+    <>
+      <StorefrontRuntimeBoot publishableKey={publishableKey} trackerSrc={trackerSrc} />
+      <NextIntlClientProvider locale={activeLocale} messages={messages}>
+        <AosInit />
+        <div
+          lang={activeLocale}
+          className={`${poppins.variable} ${notoSansBengali.variable} flex min-h-screen flex-col bg-white ${activeLocale === "bn" ? "font-sans-bn" : "font-sans-en"}`}
+        >
+          <GlobalPromoPopup popup={popup} />
+          <Navbar />
+          <main className="flex min-h-0 flex-1 flex-col">{children}</main>
+          <Footer />
+        </div>
+      </NextIntlClientProvider>
+    </>
   );
 }

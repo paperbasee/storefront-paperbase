@@ -1,9 +1,21 @@
-import { Globe, MapPin, Mail, Phone } from "lucide-react";
+import { MapPin, Mail, Phone } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { Link } from "@/i18n/routing";
 import { getStorefrontStorePublic } from "@/lib/storefront";
+
+function normalizeWhatsappHref(value: string | null | undefined): string {
+  const raw = (value ?? "").trim();
+  if (!raw) return "";
+  if (/^https?:\/\//i.test(raw) || /^whatsapp:\/\//i.test(raw)) return raw;
+  if (/^wa\.me\//i.test(raw)) return `https://${raw}`;
+
+  const digits = raw.replace(/\D+/g, "");
+  if (!digits) return raw;
+  const normalized = digits.startsWith("0") ? `88${digits}` : digits;
+  return `https://wa.me/${normalized}`;
+}
 
 function FacebookIcon({ className }: { className?: string }) {
   return (
@@ -27,45 +39,13 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
-function XIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M18.9 2H22l-6.8 7.8L23.4 22h-6.6l-5.2-6.7L5.7 22H2.6l7.3-8.4L.6 2h6.8l4.7 6.1L18.9 2Zm-1.2 18h1.7L6.5 3.9H4.7L17.7 20Z"
-      />
-    </svg>
-  );
-}
 
-function YouTubeIcon({ className }: { className?: string }) {
+function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden>
       <path
         fill="currentColor"
-        d="M21.6 7.2a2.8 2.8 0 0 0-2-2C18 4.8 12 4.8 12 4.8s-6 0-7.6.4a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2C6 19.2 12 19.2 12 19.2s6 0 7.6-.4a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8ZM10 15.5v-7l6 3.5-6 3.5Z"
-      />
-    </svg>
-  );
-}
-
-function LinkedInIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1-.02-5ZM3.5 9H6.5v12H3.5V9Zm7 0H13.4v1.7h.04c.4-.8 1.5-2 3.5-2 3.7 0 4.4 2.4 4.4 5.5V21h-3v-6c0-1.4 0-3.1-2-3.1s-2.3 1.5-2.3 3V21h-3V9Z"
-      />
-    </svg>
-  );
-}
-
-function PinterestIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M12.1 2a10 10 0 0 0-3.6 19.3c-.1-.8-.2-2 0-2.9l1.7-7.1s-.4-.8-.4-2c0-1.9 1.1-3.3 2.5-3.3 1.2 0 1.8.9 1.8 2 0 1.2-.8 3-1.1 4.6-.3 1.3.7 2.4 2 2.4 2.4 0 4.2-2.5 4.2-6.2 0-3.2-2.3-5.4-5.6-5.4-3.8 0-6.1 2.9-6.1 5.9 0 1.2.5 2.5 1 3.2.1.1.1.2.1.4l-.4 1.6c-.1.5-.3.6-.7.4-2-.9-3.2-3.7-3.2-5.9 0-4.8 3.5-9.2 10-9.2 5.3 0 9.4 3.8 9.4 8.8 0 5.2-3.3 9.4-7.9 9.4-1.5 0-3-.8-3.5-1.7l-.9 3.5c-.3 1-1 2.3-1.5 3.1.9.3 1.9.4 2.9.4A10 10 0 0 0 12.1 2Z"
+        d="M20.52 3.45A11.9 11.9 0 0012.06.02C5.47.02.1 5.39.1 11.98c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.63a11.9 11.9 0 005.84 1.49h.01c6.6 0 11.96-5.37 11.96-11.96 0-3.2-1.24-6.21-3.51-8.45ZM12.07 21.8h-.01a9.8 9.8 0 01-5-1.37l-.36-.21-3.69.97.99-3.6-.24-.37a9.8 9.8 0 01-1.5-5.24c0-5.45 4.44-9.89 9.9-9.89 2.64 0 5.12 1.02 6.98 2.89a9.8 9.8 0 012.9 6.99c0 5.46-4.44 9.9-9.87 9.9Zm5.44-7.42c-.3-.15-1.78-.88-2.06-.98-.28-.1-.49-.15-.69.15-.2.3-.79.98-.97 1.18-.18.2-.36.23-.66.08-.3-.15-1.27-.47-2.42-1.5a9.1 9.1 0 01-1.68-2.09c-.18-.3-.02-.46.14-.61.14-.14.3-.36.45-.54.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.7-1.69-.96-2.31-.25-.6-.5-.52-.69-.53h-.58c-.2 0-.53.08-.8.38-.28.3-1.06 1.04-1.06 2.53 0 1.49 1.08 2.93 1.23 3.13.15.2 2.12 3.24 5.14 4.54.72.31 1.28.5 1.72.64.72.23 1.38.2 1.9.12.58-.09 1.78-.73 2.03-1.44.25-.71.25-1.32.18-1.44-.08-.12-.28-.2-.58-.35Z"
       />
     </svg>
   );
@@ -107,40 +87,16 @@ export async function Footer() {
       icon: <InstagramIcon className="size-[18px]" />,
     },
     {
-      id: "twitter",
-      label: t("socialTwitter"),
-      href: store.social_links.twitter,
-      icon: <XIcon className="size-[18px]" />,
-    },
-    {
-      id: "youtube",
-      label: t("socialYoutube"),
-      href: store.social_links.youtube,
-      icon: <YouTubeIcon className="size-[18px]" />,
-    },
-    {
-      id: "linkedin",
-      label: t("socialLinkedin"),
-      href: store.social_links.linkedin,
-      icon: <LinkedInIcon className="size-[18px]" />,
+      id: "whatsapp",
+      label: t("socialWhatsapp"),
+      href: normalizeWhatsappHref(store.social_links.whatsapp),
+      icon: <WhatsAppIcon className="size-[18px]" />,
     },
     {
       id: "tiktok",
       label: t("socialTiktok"),
       href: store.social_links.tiktok,
       icon: <TikTokIcon className="size-[18px]" />,
-    },
-    {
-      id: "pinterest",
-      label: t("socialPinterest"),
-      href: store.social_links.pinterest,
-      icon: <PinterestIcon className="size-[18px]" />,
-    },
-    {
-      id: "website",
-      label: t("socialWebsite"),
-      href: store.social_links.website,
-      icon: <Globe className="size-[18px]" strokeWidth={1.75} />,
     },
   ].filter((item) => Boolean(item.href?.trim()));
 
@@ -278,16 +234,7 @@ export async function Footer() {
         </div>
 
         <p className="mt-12 text-center text-sm text-neutral-500">
-          © {year} {store.store_name || common("brand")}. {t("copyright")}{" "}
-          <span className="text-neutral-400">|</span> {t("developedBy")}{" "}
-          <a
-            href="https://mushfikurahmaan.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-neutral-600 underline-offset-2 transition-colors hover:text-neutral-900 hover:underline"
-          >
-            {t("developerName")}
-          </a>
+          © {year}, {store.store_name || common("brand")}
         </p>
       </PageContainer>
     </footer>

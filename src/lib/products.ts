@@ -5,13 +5,13 @@ import {
   getCategoryBySlug,
   getProductDetail,
   getRelatedProducts,
+  getStorefrontHomeSections,
   listCategories,
   listProducts,
   searchProducts,
 } from "@/lib/server/paperbase";
 import type { Product, ProductDetail } from "@/types/product";
 import type {
-  PaperbaseCategoryTreeNode,
   PaperbaseProductDetail,
   PaperbaseProductListItem,
 } from "@/types/paperbase";
@@ -90,24 +90,17 @@ export type StorefrontHomeCategorySection = {
 
 /** Root storefront categories with up to eight products each (for the home page). */
 export async function getStorefrontHomeCategorySections(): Promise<StorefrontHomeCategorySection[]> {
-  const roots = (await listCategories({ tree: "1" })) as PaperbaseCategoryTreeNode[];
-  const sections = await Promise.all(
-    roots.map(async (cat) => {
-      const response = await listProducts({ category: cat.slug, page: 1 });
-      const products = response.results.slice(0, HOME_CATEGORY_PRODUCT_LIMIT).map(mapProduct);
-      const showViewMore =
-        response.count > HOME_CATEGORY_PRODUCT_LIMIT ||
-        response.results.length > HOME_CATEGORY_PRODUCT_LIMIT;
-      return {
-        name: categoryDisplayName(cat.name),
-        slug: cat.slug,
-        description: typeof cat.description === "string" ? cat.description.trim() : "",
-        products,
-        showViewMore,
-      };
-    }),
-  );
-  return sections.filter((section) => section.products.length > 0);
+  const payload = await getStorefrontHomeSections(HOME_CATEGORY_PRODUCT_LIMIT);
+  return payload.sections
+    .map((section) => ({
+      name: categoryDisplayName(section.category.name),
+      slug: section.category.slug,
+      description:
+        typeof section.category.description === "string" ? section.category.description.trim() : "",
+      products: section.products.map(mapProduct),
+      showViewMore: section.products.length >= HOME_CATEGORY_PRODUCT_LIMIT,
+    }))
+    .filter((section) => section.products.length > 0);
 }
 
 export async function getStorefrontProductDetail(identifier: string): Promise<ProductDetail | undefined> {
@@ -138,17 +131,14 @@ export async function getStorefrontSearchProducts(q: string, page = 1): Promise<
  * Full search UX: paginated products plus combined metadata (`GET /search/`).
  * Combined response supplies matching categories and name suggestions (capped by API).
  */
-export async function getStorefrontSearchResults(q: string, page = 1) {
+export async function getStorefrontSearchResults(q: string, _page = 1) {
   const query = q.trim();
-  const [paginated, combined] = await Promise.all([
-    searchProducts(query, page),
-    combinedSearch({ q: query }),
-  ]);
+  const combined = await combinedSearch({ q: query });
   return {
-    count: paginated.count,
-    next: paginated.next,
-    previous: paginated.previous,
-    products: paginated.results.map(mapProduct),
+    count: combined.products.length,
+    next: null,
+    previous: null,
+    products: combined.products.map(mapProduct),
     categories: combined.categories,
     suggestions: combined.suggestions,
   };

@@ -122,8 +122,13 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
         {queryReady && hasProductHits ? (
           <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {searchData!.products.map((product) => (
-              <ProductCard key={product.public_id} product={product} locale={locale as Locale} />
+            {searchData!.products.map((product, productIdx) => (
+              <ProductCard
+                key={product.public_id}
+                product={product}
+                locale={locale as Locale}
+                aosDelay={(productIdx + 1) * 100}
+              />
             ))}
           </div>
         ) : null}

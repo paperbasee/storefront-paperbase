@@ -5,7 +5,7 @@ export type CheckoutSuccessPageMeta = {
   mfs_provider?: OrderSuccessMfsProvider;
 };
 
-const META_PREFIX = "paperbase-order-success-meta:";
+const META_PREFIX = "storefront-order-success-meta:";
 
 function key(publicId: string) {
   return `${META_PREFIX}${publicId}`;

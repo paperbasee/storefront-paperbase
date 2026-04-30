@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { resolveStorefrontImageUrl, storefrontImageUnoptimized } from "@/lib/storefront-image";
 import { cn } from "@/lib/utils";
 
 type ProductGalleryProps = {
@@ -13,19 +15,22 @@ type ProductGalleryProps = {
 const FALLBACK = "/placeholders/hero.svg";
 
 export function ProductGallery({ images, productName }: ProductGalleryProps) {
+  const tProduct = useTranslations("product");
   const [active, setActive] = useState(0);
   const [failedIndices, setFailedIndices] = useState<Record<number, true>>({});
 
   const safeImages = images.length > 0 ? images : [FALLBACK];
   const safeActive = Math.min(active, safeImages.length - 1);
 
-  const getImageSrc = (src: string, index: number) => (failedIndices[index] ? FALLBACK : src);
+  const getImageSrc = (src: string, index: number) =>
+    failedIndices[index] ? FALLBACK : resolveStorefrontImageUrl(src);
 
   const handleError = (index: number) => {
     setFailedIndices((prev) => ({ ...prev, [index]: true }));
   };
 
   const mainSrc = getImageSrc(safeImages[safeActive] ?? FALLBACK, safeActive);
+  const mainUnoptimized = storefrontImageUnoptimized(mainSrc);
 
   return (
     <div className="flex flex-col gap-3 md:flex-row md:gap-4">
@@ -38,7 +43,8 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             alt={productName}
             fill
             priority
-            unoptimized
+            loading="eager"
+            unoptimized={mainUnoptimized}
             sizes="(max-width: 768px) 90vw, (max-width: 1024px) 48vw, 42vw"
             className="object-contain"
             onError={() => handleError(safeActive)}
@@ -52,7 +58,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
           "order-2 m-0 flex w-full list-none flex-row gap-2 overflow-x-auto overflow-y-hidden px-0.5 py-1 [-webkit-overflow-scrolling:touch]",
           "md:order-1 md:w-[5rem] md:shrink-0 md:flex-col md:overflow-y-auto md:overflow-x-hidden",
         )}
-        aria-label="Product images"
+        aria-label={tProduct("galleryAria")}
       >
         {safeImages.map((src, i) => {
           const active = i === safeActive;
@@ -61,7 +67,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               <button
                 type="button"
                 onClick={() => setActive(i)}
-                aria-label={`View image ${i + 1}`}
+                aria-label={tProduct("viewImageAria", { index: i + 1 })}
                 aria-current={active ? "true" : undefined}
                 className={cn(
                   "group relative aspect-square shrink-0 cursor-pointer overflow-hidden rounded-lg bg-white transition-shadow duration-150",
@@ -76,7 +82,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                     alt=""
                     fill
                     sizes="(max-width: 768px) 72px, 80px"
-                    unoptimized
+                    unoptimized={storefrontImageUnoptimized(getImageSrc(src, i))}
                     className="object-contain"
                     onError={() => handleError(i)}
                   />

@@ -28,7 +28,12 @@ export function resolveStorefrontImageUrl(url: string | null | undefined): strin
   return raw;
 }
 
-/** Next/Image optimization often fails on remote storefront hosts; match product card behavior. */
+/** Keep unoptimized only for schemes unsupported by the optimizer proxy. */
 export function storefrontImageUnoptimized(resolvedUrl: string): boolean {
-  return resolvedUrl.startsWith("http");
+  const value = resolvedUrl.trim().toLowerCase();
+  if (!value) {
+    return true;
+  }
+  // Keep optimizer off only for schemes Next/Image optimizer cannot proxy.
+  return value.startsWith("data:") || value.startsWith("blob:");
 }

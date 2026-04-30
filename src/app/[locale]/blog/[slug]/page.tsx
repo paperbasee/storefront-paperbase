@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const common = await getTranslations({ locale, namespace: "common" });
 
   return {
-    title: `${post.title} · ${common("brand")}`,
+    title: `${post.title} - ${common("brand")}`,
     description: post.excerpt,
   };
 }

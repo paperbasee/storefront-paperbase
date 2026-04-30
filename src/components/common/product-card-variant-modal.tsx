@@ -24,7 +24,7 @@ import type { Locale } from "@/i18n/routing";
 
 type Props = {
   product: Product;
-  variant?: "default" | "card";
+  variant?: "default" | "card" | "icon";
 };
 
 // ─── Inner picker — must live inside VariantSelectionProvider ──────────────
@@ -244,6 +244,7 @@ export function ProductCardVariantModal({ product, variant = "default" }: Props)
   const [loadError, setLoadError] = useState(false);
 
   const isCard = variant === "card";
+  const isIcon = variant === "icon";
   const triggerLabel = isCard ? tCard("addToCart") : productT("addToCart");
   const disabled = product.stock_status === "out_of_stock";
 
@@ -270,22 +271,28 @@ export function ProductCardVariantModal({ product, variant = "default" }: Props)
         <button
           type="button"
           disabled={disabled}
+          aria-label={disabled ? productT("outOfStock") : triggerLabel}
           className={cn(
-            "flex w-full cursor-pointer items-center justify-center text-white transition-colors duration-200 ease-out",
+            "flex cursor-pointer items-center justify-center text-white transition-colors duration-200 ease-out",
+            isIcon
+              ? "size-9 rounded-full bg-transparent text-neutral-900 hover:bg-black/5"
+              : "w-full",
             isCard
               ? "gap-2 rounded-md py-2.5 text-sm font-medium bg-primary hover:bg-primary/90 active:bg-primary/95"
-              : "h-8 gap-1 rounded-md text-[11px] font-semibold sm:h-9 sm:gap-1.5 sm:text-[13px] bg-primary hover:bg-primary/90",
+              : isIcon
+                ? ""
+                : "h-8 gap-1 rounded-md text-[11px] font-semibold sm:h-9 sm:gap-1.5 sm:text-[13px] bg-primary hover:bg-primary/90",
             "disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500 disabled:hover:bg-neutral-300",
           )}
         >
           <ShoppingCart
             className={cn(
               "shrink-0 stroke-[2]",
-              isCard ? "size-[18px]" : "size-3.5 sm:size-4 md:size-4",
+              isCard ? "size-[18px]" : isIcon ? "size-5" : "size-3.5 sm:size-4 md:size-4",
             )}
             aria-hidden
           />
-          <span>{disabled ? productT("outOfStock") : triggerLabel}</span>
+          {isIcon ? <span className="sr-only">{disabled ? productT("outOfStock") : triggerLabel}</span> : <span>{disabled ? productT("outOfStock") : triggerLabel}</span>}
         </button>
       </DialogTrigger>
 

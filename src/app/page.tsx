@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 
-import { routing } from "@/i18n/routing";
+import { getStorefrontStorePublic } from "@/lib/storefront";
 
-export default function RootPage() {
-  redirect(`/${routing.defaultLocale}`);
+export default async function RootPage() {
+  const store = await getStorefrontStorePublic();
+  const locale = store.language === "bn" ? "bn" : "en";
+  redirect(`/${locale}`);
 }

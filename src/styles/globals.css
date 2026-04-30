@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Bengali:wght@100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -6,7 +6,7 @@
 
 /* English: letters use Poppins; numerals & numeric punctuation use Archivo (see .font-sans-en). */
 @font-face {
-  font-family: "Sarar English Figures";
+  font-family: "Storefront English Figures";
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
@@ -16,7 +16,7 @@
 }
 
 @font-face {
-  font-family: "Sarar English Figures";
+  font-family: "Storefront English Figures";
   font-style: normal;
   font-weight: 800;
   font-display: swap;
@@ -200,7 +200,11 @@
   }
 
   .font-sans-en {
-    font-family: "Sarar English Figures", var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+    font-family: "Storefront English Figures", var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .font-sans-bn {
+    font-family: "Noto Sans Bengali", "Storefront English Figures", var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   }
 }
 

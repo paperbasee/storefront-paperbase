@@ -1,4 +1,4 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { SupportTicketForm } from "@/components/support/support-ticket-form";
@@ -15,13 +15,14 @@ export default async function SupportPage({ params }: SupportPageProps) {
     notFound();
   }
   setRequestLocale(locale);
+  const t = await getTranslations("support");
 
   return (
     <div className="bg-surface py-8">
       <PageContainer>
         <div className="mx-auto max-w-2xl rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-semibold text-text">Support</h1>
-          <p className="mt-2 text-sm text-neutral-600">Submit a support ticket and we will get back to you.</p>
+          <h1 className="text-2xl font-semibold text-text">{t("title")}</h1>
+          <p className="mt-2 text-sm text-neutral-600">{t("intro")}</p>
           <div className="mt-6">
             <SupportTicketForm />
           </div>

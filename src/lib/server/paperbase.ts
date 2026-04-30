@@ -15,6 +15,7 @@ import type {
   PaperbaseCategoryTreeNode,
   PaperbaseCombinedSearchResponse,
   PaperbaseNotification,
+  PaperbaseStorePopup,
   PaperbaseOrderCreateRequest,
   PaperbaseOrderCreateResponse,
   PaperbaseOrderReceipt,
@@ -28,6 +29,7 @@ import type {
   PaperbaseShippingPreviewRequest,
   PaperbaseShippingPreviewResponse,
   PaperbaseShippingZone,
+  PaperbaseStorefrontHomeSectionsResponse,
   PaperbaseStorePublic,
   PaperbaseSupportTicketRequest,
   PaperbaseSupportTicketResponse,
@@ -96,10 +98,23 @@ async function requestOnce<T>(
 
   if (!response.ok) {
     const payload = await parseErrorPayload(response);
-    throw new PaperbaseApiError("Paperbase API request failed", response.status, payload);
+    throw new PaperbaseApiError("Storefront API request failed", response.status, payload);
   }
 
-  return (await response.json()) as T;
+  const text = await response.text();
+  if (!text) {
+    return undefined as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new PaperbaseApiError("Storefront API returned invalid JSON", response.status, {
+      path,
+      method,
+      preview: text.slice(0, 300),
+    });
+  }
 }
 
 /** Bounded retry for idempotent GETs (transient failures). */
@@ -149,6 +164,13 @@ export function listProducts(query?: {
   return paperbaseGet<PaginatedResponse<PaperbaseProductListItem>>("products/", {
     query,
     next: { revalidate: 60 },
+  });
+}
+
+export function getStorefrontHomeSections(limit = 10) {
+  return paperbaseGet<PaperbaseStorefrontHomeSectionsResponse>("storefront/home/", {
+    query: { limit },
+    next: { revalidate: 120 },
   });
 }
 
@@ -219,6 +241,12 @@ export const getBanners = cache((slot?: PaperbaseBannerSlot) =>
 
 export const getActiveNotifications = cache(() =>
   paperbaseGet<PaperbaseNotification[]>("notifications/active/", {
+    next: { revalidate: 120 },
+  }),
+);
+
+export const getActivePopup = cache(() =>
+  paperbaseGet<PaperbaseStorePopup | null>("popups/", {
     next: { revalidate: 120 },
   }),
 );

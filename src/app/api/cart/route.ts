@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
 
 /**
- * Paperbase has no server cart API. Cart remains client-side (localStorage).
+ * Storefront has no server cart API. Cart remains client-side (localStorage).
  * This route exists for future extensions (e.g. server-side validation snapshots).
  */
 export async function GET() {
-  return Response.json({ ok: true, note: "Cart is managed client-side per Paperbase storefront contract." });
+  return Response.json({ ok: true, note: "Cart is managed client-side per storefront contract." });
 }
 
 export async function POST(request: NextRequest) {

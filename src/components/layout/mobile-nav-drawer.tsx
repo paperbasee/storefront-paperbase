@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useId, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/routing";
 import type { HeaderCategoryNav } from "@/lib/storefront";
+import { Menu } from "lucide-react";
 
 /** Locale-prefixed navigation (same as desktop mega nav); raw `/categories/...` 404s with `localePrefix: "always"`. */
 function CategoryNavLink({
@@ -37,161 +40,78 @@ function CategoryNavLink({
 
 type MobileNavDrawerProps = {
   menuTitle: string;
-  backHomeLabel: string;
   categories: HeaderCategoryNav[];
 };
 
-const MOBILE_SUB_INDENT_REM = 2;
+type SlideTransitionState = {
+  direction: "forward" | "back";
+  fromTrail: HeaderCategoryNav[];
+  toTrail: HeaderCategoryNav[];
+  phase: "start" | "run";
+};
 
-function ExpandIcon({ open }: { open: boolean }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      className="size-5 shrink-0 text-white/60 transition-transform duration-200"
-      style={{ transform: open ? "rotate(45deg)" : "rotate(0deg)" }}
-      aria-hidden
-    >
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
-function SubAccordionItem({
-  node,
-  depth,
-  onNavigate,
-}: {
-  node: HeaderCategoryNav;
-  depth: number;
-  onNavigate: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const subs = node.children;
-  const indentRem = MOBILE_SUB_INDENT_REM + depth * 0.75;
-
-  if (!subs?.length) {
-    return (
-      <CategoryNavLink
-        href={node.href}
-        className="block border-b border-white/10 py-3 pr-4 text-[15px] text-white/90 last:border-b-0 hover:bg-white/10"
-        style={{ paddingLeft: `${indentRem}rem` }}
-        onClick={onNavigate}
-      >
-        {node.label}
-      </CategoryNavLink>
-    );
-  }
-
-  return (
-    <div className="border-b border-white/10 last:border-b-0">
-      <div className="flex items-center">
-        <CategoryNavLink
-          href={node.href}
-          className="min-w-0 flex-1 py-3 text-[15px] text-white/90 hover:bg-white/10"
-          style={{ paddingLeft: `${indentRem}rem` }}
-          onClick={onNavigate}
-        >
-          {node.label}
-        </CategoryNavLink>
-        <button
-          type="button"
-          aria-label={open ? `Collapse ${node.label}` : `Expand ${node.label}`}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-          className="flex size-11 shrink-0 items-center justify-center hover:bg-white/10"
-        >
-          <ExpandIcon open={open} />
-        </button>
-      </div>
-      {open && (
-        <div className="border-t border-white/10 bg-black/15">
-          <MobileCategorySubtree nodes={subs} depth={depth + 1} onNavigate={onNavigate} />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MobileCategorySubtree({
+function CategoryScreen({
   nodes,
-  depth,
+  parent,
+  onEnterSubmenu,
+  onBack,
   onNavigate,
 }: {
   nodes: HeaderCategoryNav[];
-  depth: number;
+  parent: HeaderCategoryNav | null;
+  onEnterSubmenu: (node: HeaderCategoryNav) => void;
+  onBack: () => void;
   onNavigate: () => void;
 }) {
   return (
-    <>
-      {nodes.map((node) => (
-        <SubAccordionItem key={node.id} node={node} depth={depth} onNavigate={onNavigate} />
-      ))}
-    </>
-  );
-}
-
-function CategoryBlock({
-  category,
-  onNavigate,
-}: {
-  category: HeaderCategoryNav;
-  onNavigate: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const subs = category.children;
-
-  if (!subs?.length) {
-    return (
-      <CategoryNavLink
-        href={category.href}
-        className="block border-b border-white/10 px-4 py-3.5 text-base text-white/95 transition hover:bg-white/10"
-        onClick={onNavigate}
-      >
-        {category.label}
-      </CategoryNavLink>
-    );
-  }
-
-  return (
-    <div className="border-b border-white/10">
-      <div className="flex items-center">
-        <CategoryNavLink
-          href={category.href}
-          className="min-w-0 flex-1 px-4 py-3.5 text-base text-white/95 hover:bg-white/10"
-          onClick={onNavigate}
-        >
-          {category.label}
-        </CategoryNavLink>
-        <button
-          type="button"
-          aria-label={open ? `Collapse ${category.label}` : `Expand ${category.label}`}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-          className="flex size-12 shrink-0 items-center justify-center hover:bg-white/10"
-        >
-          <ExpandIcon open={open} />
-        </button>
-      </div>
-      {open && (
-        <div className="border-t border-white/10 bg-black/15">
-          <MobileCategorySubtree nodes={subs} depth={0} onNavigate={onNavigate} />
+    <div className="pt-3">
+      {parent ? (
+        <div className="flex h-10 items-center bg-black/15 px-4">
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center gap-2 text-sm uppercase tracking-wide text-white/90"
+          >
+            <ArrowLeft className="size-4" aria-hidden />
+            <span>{parent.label}</span>
+          </button>
         </div>
-      )}
+      ) : null}
+      {nodes.map((node) => (
+        <div key={node.id} className="flex items-center">
+          <CategoryNavLink
+            href={node.href}
+            className="min-w-0 flex-1 px-4 py-3.5 text-[17px] text-white/95 hover:bg-white/10"
+            onClick={onNavigate}
+          >
+            {node.label}
+          </CategoryNavLink>
+          {node.children?.length ? (
+            <button
+              type="button"
+              aria-label={node.label}
+              onClick={() => onEnterSubmenu(node)}
+              className="flex size-12 shrink-0 items-center justify-center hover:bg-white/10"
+            >
+              <ArrowRight className="size-4 shrink-0 text-white/70" aria-hidden />
+            </button>
+          ) : null}
+        </div>
+      ))}
     </div>
   );
 }
 
 export function MobileNavDrawer({
   menuTitle,
-  backHomeLabel,
   categories,
 }: MobileNavDrawerProps) {
+  const tNav = useTranslations("nav");
   const [open, setOpen] = useState(false);
+  const [trail, setTrail] = useState<HeaderCategoryNav[]>([]);
+  const [slide, setSlide] = useState<SlideTransitionState | null>(null);
+  const [panelTop, setPanelTop] = useState(0);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const isClient = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -223,36 +143,100 @@ export function MobileNavDrawer({
 
   function close() {
     setOpen(false);
+    setTrail([]);
+    setSlide(null);
   }
+
+  function syncPanelTop() {
+    const trigger = triggerRef.current;
+    if (!trigger) {
+      return;
+    }
+    const nextTop = Math.round(trigger.getBoundingClientRect().bottom);
+    setPanelTop(nextTop);
+  }
+
+  function openMenu() {
+    syncPanelTop();
+    setTrail([]);
+    setSlide(null);
+    setOpen(true);
+  }
+
+  function getLevelData(currentTrail: HeaderCategoryNav[]) {
+    const parent = currentTrail.length ? currentTrail[currentTrail.length - 1] : null;
+    const nodes = parent?.children ?? categories;
+    return { parent, nodes };
+  }
+
+  function startSlide(nextTrail: HeaderCategoryNav[], direction: "forward" | "back") {
+    const fromTrail = trail;
+    setSlide({ direction, fromTrail, toTrail: nextTrail, phase: "start" });
+    setTrail(nextTrail);
+    requestAnimationFrame(() => {
+      setSlide((prev) => (prev ? { ...prev, phase: "run" } : prev));
+    });
+  }
+
+  const currentLevel = getLevelData(trail);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function onViewportChange() {
+      syncPanelTop();
+    }
+
+    window.addEventListener("resize", onViewportChange);
+    window.addEventListener("scroll", onViewportChange, true);
+    return () => {
+      window.removeEventListener("resize", onViewportChange);
+      window.removeEventListener("scroll", onViewportChange, true);
+    };
+  }, [open]);
 
   return (
     <>
       <button
+        ref={triggerRef}
         type="button"
-        className="flex size-10 shrink-0 items-center justify-center rounded-md text-white md:hidden hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
-        aria-label={menuTitle}
+        className="flex size-10 shrink-0 items-center justify-start ps-0.5 self-center rounded-md text-white md:hidden hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
+        aria-label={open ? tNav("closeMenu") : menuTitle}
         aria-expanded={open}
         aria-controls={panelId}
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (open) {
+            close();
+            return;
+          }
+          openMenu();
+        }}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          className="size-5"
-          aria-hidden
-        >
-          <path d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
+        {open ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            className="size-6"
+            aria-hidden
+          >
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        ) : (
+          <Menu className="size-6" strokeWidth={1.9} aria-hidden />
+        )}
       </button>
 
       {isClient
         ? createPortal(
             <div
-              className={`fixed inset-0 z-[100] md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+              className={`fixed inset-x-0 bottom-0 z-30 md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+              style={{ top: `${panelTop}px` }}
               inert={open ? undefined : true}
             >
               <button
@@ -260,7 +244,7 @@ export function MobileNavDrawer({
                 className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${
                   open ? "opacity-100" : "opacity-0"
                 }`}
-                aria-label="Close menu"
+                aria-label={tNav("closeMenu")}
                 tabIndex={open ? 0 : -1}
                 onClick={close}
               />
@@ -271,25 +255,72 @@ export function MobileNavDrawer({
                 aria-modal="true"
                 aria-labelledby={headingId}
                 inert={open ? undefined : true}
-                className={`absolute left-0 top-0 flex h-full w-[min(82vw,20rem)] max-w-[320px] flex-col bg-header text-white shadow-2xl transition-transform duration-300 ease-out ${
+                className={`absolute left-0 top-0 flex h-full w-full max-w-none flex-col border-t border-black/15 bg-header text-white shadow-2xl transition-transform duration-300 ease-out ${
                   open ? "translate-x-0" : "-translate-x-full"
                 }`}
               >
-                <header className="flex shrink-0 items-center border-b border-white/15 px-4 py-3">
-                  <Link
-                    id={headingId}
-                    href="/"
-                    className="inline-flex items-center rounded-md text-lg font-bold text-white underline-offset-2 hover:underline"
-                    onClick={close}
-                  >
-                    {backHomeLabel}
-                  </Link>
-                </header>
+                <h2 id={headingId} className="sr-only">
+                  {menuTitle}
+                </h2>
 
-                <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-                  {categories.map((category) => (
-                    <CategoryBlock key={category.id} category={category} onNavigate={close} />
-                  ))}
+                <div className="h-px w-full bg-black/15" />
+
+                <nav className="relative min-h-0 flex-1 overflow-hidden overscroll-contain">
+                  {slide ? (
+                    <>
+                      <div
+                        className={`absolute inset-0 overflow-y-auto overscroll-contain transition-transform duration-300 ease-out ${
+                          slide.direction === "forward"
+                            ? slide.phase === "run"
+                              ? "-translate-x-1/4"
+                              : "translate-x-0"
+                            : slide.phase === "run"
+                              ? "translate-x-full"
+                              : "translate-x-0"
+                        }`}
+                      >
+                        <CategoryScreen
+                          nodes={getLevelData(slide.fromTrail).nodes}
+                          parent={getLevelData(slide.fromTrail).parent}
+                          onEnterSubmenu={(node) =>
+                            startSlide([...slide.fromTrail, node], "forward")
+                          }
+                          onBack={() => startSlide(slide.fromTrail.slice(0, -1), "back")}
+                          onNavigate={close}
+                        />
+                      </div>
+                      <div
+                        className={`absolute inset-0 overflow-y-auto overscroll-contain transition-transform duration-300 ease-out ${
+                          slide.direction === "forward"
+                            ? slide.phase === "run"
+                              ? "translate-x-0"
+                              : "translate-x-full"
+                            : slide.phase === "run"
+                              ? "translate-x-0"
+                              : "-translate-x-1/4"
+                        }`}
+                        onTransitionEnd={() => setSlide(null)}
+                      >
+                        <CategoryScreen
+                          nodes={getLevelData(slide.toTrail).nodes}
+                          parent={getLevelData(slide.toTrail).parent}
+                          onEnterSubmenu={(node) => startSlide([...slide.toTrail, node], "forward")}
+                          onBack={() => startSlide(slide.toTrail.slice(0, -1), "back")}
+                          onNavigate={close}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 overflow-y-auto overscroll-contain">
+                      <CategoryScreen
+                        nodes={currentLevel.nodes}
+                        parent={currentLevel.parent}
+                        onEnterSubmenu={(node) => startSlide([...trail, node], "forward")}
+                        onBack={() => startSlide(trail.slice(0, -1), "back")}
+                        onNavigate={close}
+                      />
+                    </div>
+                  )}
                 </nav>
               </aside>
             </div>,

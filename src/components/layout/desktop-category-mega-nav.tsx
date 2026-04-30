@@ -14,7 +14,7 @@ const CLOSE_DELAY_MS = 160;
 
 /** Same typography for button vs link (UA button styles can otherwise differ from anchors). */
 const categoryBarItemClass =
-  "inline-flex min-h-9 max-w-none items-center rounded-md px-2 py-1.5 text-sm font-medium leading-tight whitespace-nowrap md:px-2.5";
+  "inline-flex min-h-10 max-w-none items-center rounded-md px-2 py-1.5 text-base font-medium leading-tight whitespace-nowrap md:px-2.5";
 
 type NavHrefProps = {
   href: string;

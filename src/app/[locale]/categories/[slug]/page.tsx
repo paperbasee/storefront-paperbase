@@ -44,10 +44,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
         {hasProducts ? (
           <div className="mt-5 grid grid-cols-2 gap-4 sm:gap-6 md:mt-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {products.results.map((product) => (
+            {products.results.map((product, productIdx) => (
               <ProductCard
                 key={product.public_id}
                 locale={locale as Locale}
+                aosDelay={(productIdx + 1) * 100}
                 product={{
                   ...product,
                   extra_data: product.extra_data ?? {},

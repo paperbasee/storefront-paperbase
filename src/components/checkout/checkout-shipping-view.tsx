@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useCart } from "@/hooks/useCart";
 import { formatPaperbaseError, stockValidationErrors } from "@/lib/api/paperbase-errors";
@@ -52,6 +52,128 @@ type CheckoutDraft = {
     variant_public_id?: string;
   }>;
 };
+
+type CheckoutSummaryItemProps = {
+  item: CartItem;
+  locale: Locale;
+  showRemoveLine: boolean;
+  onIncrement: (item: CartItem) => void;
+  onDecrement: (item: CartItem) => void;
+  onRemove: (item: CartItem) => void;
+};
+
+function lineKeyForItem(item: CartItem): string {
+  return item.line_key ?? `${item.product_public_id}-${item.variant_public_id ?? "default"}`;
+}
+
+const CheckoutSummaryItem = memo(function CheckoutSummaryItem({
+  item,
+  locale,
+  showRemoveLine,
+  onIncrement,
+  onDecrement,
+  onRemove,
+}: CheckoutSummaryItemProps) {
+  const t = useTranslations("checkout");
+  const tCart = useTranslations("cart");
+  const productT = useTranslations("product");
+  const productHref = item.product_slug ? (`/products/${item.product_slug}` as const) : null;
+  const imageSrc = resolveStorefrontImageUrl(item.image_url);
+
+  return (
+    <li className="rounded-lg border border-neutral-200 bg-white p-4">
+      <div className="flex gap-2 sm:gap-3">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-neutral-100 bg-neutral-50">
+          <Image
+            src={imageSrc}
+            alt={item.name}
+            fill
+            sizes="80px"
+            className="object-contain p-1.5"
+            unoptimized={storefrontImageUnoptimized(imageSrc)}
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          {productHref ? (
+            <Link
+              href={productHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-fit max-w-full text-sm font-light leading-snug text-neutral-900 underline decoration-neutral-400 decoration-1 underline-offset-[3px] hover:text-neutral-950 hover:decoration-neutral-800"
+            >
+              {item.name}
+            </Link>
+          ) : (
+            <p className="text-sm font-light leading-snug text-neutral-900">{item.name}</p>
+          )}
+          <CheckoutLineVariants item={item} />
+          <p className="mt-3 text-xs font-normal text-neutral-500">
+            <span className="price-display-line">{formatMoney(item.price, locale)}</span>{" "}
+            <span>{t("each")}</span>
+          </p>
+          <div className="mt-3">
+            <QuantityStepper
+              layout="segmented"
+              quantity={item.quantity}
+              onIncrement={() => onIncrement(item)}
+              onDecrement={() => onDecrement(item)}
+              increaseLabel={
+                item.max_quantity != null && item.quantity >= item.max_quantity
+                  ? productT("increaseQuantityDisabledMax")
+                  : productT("increaseQuantity")
+              }
+              decreaseLabel={
+                item.quantity <= 1
+                  ? productT("decreaseQuantityDisabledMin")
+                  : productT("decreaseQuantity")
+              }
+              decrementDisabled={item.quantity <= 1}
+              incrementDisabled={item.max_quantity != null && item.quantity >= item.max_quantity}
+            />
+          </div>
+        </div>
+        {showRemoveLine ? (
+          <div className="shrink-0 self-start pt-0.5">
+            <button
+              type="button"
+              onClick={() => onRemove(item)}
+              className="text-xs font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 transition-colors hover:text-primary"
+            >
+              {tCart("remove")}
+            </button>
+          </div>
+        ) : null}
+      </div>
+      <p className="mt-3 border-t border-neutral-100 pt-3 text-end text-xs font-normal text-neutral-500">
+        <span className="tabular-nums text-neutral-700">
+          {formatMoney(parseDecimal(item.price) * item.quantity, locale)}
+        </span>
+      </p>
+    </li>
+  );
+}, areSummaryItemsEqual);
+
+function areSummaryItemsEqual(
+  prev: Readonly<CheckoutSummaryItemProps>,
+  next: Readonly<CheckoutSummaryItemProps>,
+) {
+  return (
+    prev.locale === next.locale &&
+    prev.showRemoveLine === next.showRemoveLine &&
+    prev.onIncrement === next.onIncrement &&
+    prev.onDecrement === next.onDecrement &&
+    prev.onRemove === next.onRemove &&
+    prev.item.product_public_id === next.item.product_public_id &&
+    prev.item.variant_public_id === next.item.variant_public_id &&
+    prev.item.product_slug === next.item.product_slug &&
+    prev.item.image_url === next.item.image_url &&
+    prev.item.name === next.item.name &&
+    prev.item.price === next.item.price &&
+    prev.item.quantity === next.item.quantity &&
+    prev.item.max_quantity === next.item.max_quantity &&
+    prev.item.line_key === next.item.line_key
+  );
+}
 
 export function CheckoutShippingView() {
   const t = useTranslations("checkout");
@@ -114,7 +236,7 @@ export function CheckoutShippingView() {
         }
       } catch {
         if (!mounted) return;
-        setErrorText("Failed to load shipping zones.");
+        setErrorText(t("errorShippingZonesLoad"));
       }
     }
     loadZones();
@@ -140,7 +262,7 @@ export function CheckoutShippingView() {
         setSelectedMethod(firstId);
       } catch {
         if (!mounted) return;
-        setErrorText("Failed to load shipping for this zone.");
+        setErrorText(t("errorShippingZoneOptionsLoad"));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -225,6 +347,27 @@ export function CheckoutShippingView() {
     };
   }, [cartItems, selectedMethod, selectedZone, t]);
 
+  const handleIncrement = useCallback(
+    (item: CartItem) => {
+      increment(item.product_public_id, item.variant_public_id, "checkout");
+    },
+    [increment],
+  );
+
+  const handleDecrement = useCallback(
+    (item: CartItem) => {
+      decrement(item.product_public_id, item.variant_public_id, "checkout");
+    },
+    [decrement],
+  );
+
+  const handleRemove = useCallback(
+    (item: CartItem) => {
+      removeItem(item.product_public_id, item.variant_public_id, "checkout");
+    },
+    [removeItem],
+  );
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -232,7 +375,7 @@ export function CheckoutShippingView() {
       return;
     }
     if (!selectedZone) {
-      setErrorText("Please choose a shipping zone.");
+      setErrorText(t("errorShippingZoneRequired"));
       return;
     }
     const formData = new FormData(form);
@@ -332,94 +475,17 @@ export function CheckoutShippingView() {
           <h2 className="shrink-0 text-lg font-semibold tracking-tight text-neutral-950">{t("orderSummary")}</h2>
 
           <ul className="checkout-summary-scroll mt-5 space-y-4 max-lg:max-h-[60vh] max-lg:overflow-y-auto max-lg:pr-1 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1">
-            {checkoutItems.map((item) => {
-              const productHref = item.product_slug ? (`/products/${item.product_slug}` as const) : null;
-              const imageSrc = resolveStorefrontImageUrl(item.image_url);
-              // Show remove when more than one line (including ephemeral Buy Now checkout).
-              const showRemoveLine = checkoutItems.length > 1;
-              return (
-                <li
-                  key={item.line_key ?? `${item.product_public_id}-${item.variant_public_id ?? "default"}`}
-                  className="rounded-lg border border-neutral-200 bg-white p-4"
-                >
-                  <div className="flex gap-2 sm:gap-3">
-                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-neutral-100 bg-neutral-50">
-                      <Image
-                        src={imageSrc}
-                        alt={item.name}
-                        fill
-                        sizes="80px"
-                        className="object-contain p-1.5"
-                        unoptimized={storefrontImageUnoptimized(imageSrc)}
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      {productHref ? (
-                        <Link
-                          href={productHref}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block w-fit max-w-full text-sm font-light leading-snug text-neutral-900 underline decoration-neutral-400 decoration-1 underline-offset-[3px] hover:text-neutral-950 hover:decoration-neutral-800"
-                        >
-                          {item.name}
-                        </Link>
-                      ) : (
-                        <p className="text-sm font-light leading-snug text-neutral-900">{item.name}</p>
-                      )}
-                      <CheckoutLineVariants item={item} />
-                      <p className="mt-3 text-xs font-normal text-neutral-500">
-                        <span className="price-display-line">{formatMoney(item.price, locale)}</span>{" "}
-                        <span>{t("each")}</span>
-                      </p>
-                      <div className="mt-3">
-                        <QuantityStepper
-                          layout="segmented"
-                          quantity={item.quantity}
-                          onIncrement={() =>
-                            increment(item.product_public_id, item.variant_public_id, "checkout")
-                          }
-                          onDecrement={() =>
-                            decrement(item.product_public_id, item.variant_public_id, "checkout")
-                          }
-                          increaseLabel={
-                            item.max_quantity != null && item.quantity >= item.max_quantity
-                              ? productT("increaseQuantityDisabledMax")
-                              : productT("increaseQuantity")
-                          }
-                          decreaseLabel={
-                            item.quantity <= 1
-                              ? productT("decreaseQuantityDisabledMin")
-                              : productT("decreaseQuantity")
-                          }
-                          decrementDisabled={item.quantity <= 1}
-                          incrementDisabled={
-                            item.max_quantity != null && item.quantity >= item.max_quantity
-                          }
-                        />
-                      </div>
-                    </div>
-                    {showRemoveLine ? (
-                      <div className="shrink-0 self-start pt-0.5">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeItem(item.product_public_id, item.variant_public_id, "checkout")
-                          }
-                          className="text-xs font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 transition-colors hover:text-primary"
-                        >
-                          {tCart("remove")}
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
-                  <p className="mt-3 border-t border-neutral-100 pt-3 text-end text-xs font-normal text-neutral-500">
-                    <span className="tabular-nums text-neutral-700">
-                      {formatMoney(parseDecimal(item.price) * item.quantity, locale)}
-                    </span>
-                  </p>
-                </li>
-              );
-            })}
+            {checkoutItems.map((item) => (
+              <CheckoutSummaryItem
+                key={lineKeyForItem(item)}
+                item={item}
+                locale={locale}
+                showRemoveLine={checkoutItems.length > 1}
+                onIncrement={handleIncrement}
+                onDecrement={handleDecrement}
+                onRemove={handleRemove}
+              />
+            ))}
           </ul>
 
           <dl

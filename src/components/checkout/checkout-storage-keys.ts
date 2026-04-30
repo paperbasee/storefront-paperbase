@@ -1,13 +1,13 @@
 /**
  * sessionStorage key for the shipping-step checkout draft consumed by the payment step.
  */
-export const CHECKOUT_DRAFT_STORAGE_KEY = "paperbase-checkout-draft";
+export const CHECKOUT_DRAFT_STORAGE_KEY = "storefront-checkout-draft";
 
 /**
  * localStorage key for the last MFS checkout order `public_id` (`ord_...`), set when
  * the user continues from the payment stub so refresh / back navigation can recover the id.
  */
-export const MFS_PENDING_ORDER_PUBLIC_ID_KEY = "paperbase-mfs-pending-order-public-id";
+export const MFS_PENDING_ORDER_PUBLIC_ID_KEY = "storefront-mfs-pending-order-public-id";
 
 export function readMfsPendingOrderPublicId(): string | null {
   if (typeof window === "undefined") return null;
@@ -44,9 +44,9 @@ export function clearMfsPendingOrderPublicId(): void {
  * Captured at shipping-submit time so the payment step reflects the actual items
  * being ordered even after the Buy Now session map is cleared.
  */
-export const CHECKOUT_PREPAYMENT_STORAGE_KEY = "paperbase-checkout-prepayment";
+export const CHECKOUT_PREPAYMENT_STORAGE_KEY = "storefront-checkout-prepayment";
 
 export type CheckoutMfsSuccessProvider = "bkash" | "nagad";
 
 /** @deprecated One-shot handoff to `/checkout/payment` — migrated on payment page load to `/success/[orderId]`. */
-export const LEGACY_CHECKOUT_SUCCESS_HANDOFF_KEY = "paperbase-checkout-success-handoff";
+export const LEGACY_CHECKOUT_SUCCESS_HANDOFF_KEY = "storefront-checkout-success-handoff";

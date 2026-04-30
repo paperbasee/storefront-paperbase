@@ -14,6 +14,7 @@ export type PaginatedResponse<T> = {
 export type PaperbaseStorePublic = {
   store_name: string;
   logo_url: string | null;
+  language?: "en" | "bn";
   currency: string;
   currency_symbol: string;
   country: string;
@@ -51,12 +52,8 @@ export type PaperbaseStorePublic = {
   social_links: {
     facebook: string;
     instagram: string;
-    twitter: string;
-    youtube: string;
-    linkedin: string;
+    whatsapp: string;
     tiktok: string;
-    pinterest: string;
-    website: string;
   };
 };
 
@@ -147,12 +144,17 @@ export type PaperbaseCatalogFilters = {
   };
 };
 
-export type PaperbaseBannerSlot = "home_top" | "home_mid" | "home_bottom";
+export type PaperbaseBannerSlot = "home_top" | "home_bottom";
 
 export type PaperbaseBanner = {
   public_id: string;
   title: string;
   image_url: string | null;
+  images: Array<{
+    public_id: string;
+    image_url: string | null;
+    order: number;
+  }>;
   cta_text: string;
   cta_url: string;
   order: number;
@@ -172,6 +174,29 @@ export type PaperbaseNotification = {
   is_currently_active: boolean;
   start_at: string | null;
   end_at: string | null;
+};
+
+export type PaperbaseStorePopupShowFrequency = "session" | "daily" | "always";
+
+export type PaperbaseStorePopupImage = {
+  public_id: string;
+  image_url: string | null;
+  order: number;
+};
+
+export type PaperbaseStorePopup = {
+  public_id: string;
+  title: string;
+  description: string;
+  button_text: string;
+  button_link: string;
+  delay_seconds: number;
+  show_frequency: PaperbaseStorePopupShowFrequency;
+  show_on_all_pages: boolean;
+  is_active: boolean;
+  images: PaperbaseStorePopupImage[];
+  created_at: string;
+  updated_at: string;
 };
 
 export type PaperbaseShippingZone = {
@@ -296,6 +321,15 @@ export type PaperbaseCombinedSearchResponse = {
   categories: PaperbaseCategory[];
   suggestions: string[];
   trending: boolean;
+};
+
+export type PaperbaseStorefrontHomeSection = {
+  category: Pick<PaperbaseCategory, "public_id" | "name" | "slug" | "description">;
+  products: PaperbaseProductListItem[];
+};
+
+export type PaperbaseStorefrontHomeSectionsResponse = {
+  sections: PaperbaseStorefrontHomeSection[];
 };
 
 export type PaperbaseSupportTicketRequest = {

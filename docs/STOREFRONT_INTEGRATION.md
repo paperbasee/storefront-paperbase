@@ -219,12 +219,8 @@ links, policy URLs, and the custom product-field schema.
   "social_links": {
     "facebook": "https://facebook.com/mystore",
     "instagram": "https://instagram.com/mystore",
-    "twitter": "",
-    "youtube": "",
-    "linkedin": "",
-    "tiktok": "",
-    "pinterest": "",
-    "website": "https://mystore.com"
+    "whatsapp": "",
+    "tiktok": ""
   }
 }
 ```
@@ -251,7 +247,7 @@ links, policy URLs, and the custom product-field schema.
 | `seo.default_title` | string | Default page title |
 | `seo.default_description` | string | Default meta description |
 | `policy_urls.returns` / `refund` / `privacy` | string | Policy URLs (may be empty) |
-| `social_links` | object | 8 keys are **always** present: `facebook`, `instagram`, `twitter`, `youtube`, `linkedin`, `tiktok`, `pinterest`, `website`. Missing links are empty strings. |
+| `social_links` | object | 4 keys are **always** present: `facebook`, `instagram`, `whatsapp`, `tiktok`. Missing links are empty strings. |
 
 **Errors:** auth-only (section 10).
 
@@ -609,7 +605,7 @@ Active, in-schedule banners for the tenant.
 
 | Param | Type | Notes |
 |---|---|---|
-| `slot` | string | Optional. If provided, must be one of `home_top`, `home_mid`, `home_bottom`. |
+| `slot` | string | Optional. If provided, must be one of `home_top`, `home_bottom`. |
 
 **Response `200`:**
 
@@ -639,7 +635,7 @@ Active, in-schedule banners for the tenant.
 | `cta_text` | string | Button text |
 | `cta_url` | string | Button link (may be empty string) |
 | `order` | integer | Display order (sort ascending) |
-| `placement_slots` | string[] | One or more of `home_top`, `home_mid`, `home_bottom` |
+| `placement_slots` | string[] | One or more of `home_top`, `home_bottom` |
 | `start_at` | string \| null | ISO 8601 schedule start |
 | `end_at` | string \| null | ISO 8601 schedule end |
 
@@ -1999,7 +1995,7 @@ fired automatically by `tracker.js` when the user navigates to the checkout rout
   (`smt_...`). `/shipping/options/` returns both `rate_public_id` (`srt_...`) and
   `method_public_id` — send the method id, not the rate id.
 - **Banner slots**: if you build a custom slot (e.g. `home_right`), the server will
-  `400`. Stick to `home_top`, `home_mid`, `home_bottom`.
+  `400`. Stick to `home_top`, `home_bottom`.
 - **Notifications**: render only `is_currently_active === true`. The `is_active`
   flag alone is **not** sufficient.
 - **Category parent filter**: `GET /categories/?parent=<slug>` returns children
@@ -2008,8 +2004,7 @@ fired automatically by `tracker.js` when the user navigates to the checkout rout
   `/products/<identifier>/...` routes. Prefer the slug in URLs and the id in code.
 - **Empty catalog**: `/catalog/filters/` returns `price_range: { min: 0.0, max: 0.0 }`
   when there are no active products. Guard your price slider against this.
-- **Social links**: all 8 keys (`facebook`, `instagram`, `twitter`, `youtube`,
-  `linkedin`, `tiktok`, `pinterest`, `website`) are always present; missing links
+- **Social links**: all 4 keys (`facebook`, `instagram`, `whatsapp`, `tiktok`) are always present; missing links
   are empty strings, not `null`.
 - **Date handling**: all timestamps are ISO 8601 with timezone offsets. Parse with
   your date library; never string-compare across time zones.
