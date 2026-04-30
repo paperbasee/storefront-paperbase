@@ -26,15 +26,6 @@ type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
 
-function logProductPageDependencyFailure(
-  dependency: "store-public" | "related-products",
-  slug: string,
-  error: unknown,
-) {
-  const message = error instanceof Error ? error.message : "Unknown error";
-  console.error(`[product-detail] failed to load ${dependency} for slug="${slug}": ${message}`);
-}
-
 export async function generateStaticParams() {
   const slugs = await getStorefrontProductSlugs();
   return slugs.map((slug) => ({ slug }));
@@ -46,19 +37,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {};
   }
 
-  const [product, storeResult, tMeta] = await Promise.all([
+  const [product, store, tMeta] = await Promise.all([
     getStorefrontProductDetail(slug),
-    getStorefrontStorePublic().catch((error) => {
-      logProductPageDependencyFailure("store-public", slug, error);
-      return null;
-    }),
+    getStorefrontStorePublic(),
     getTranslations({ locale, namespace: "metadata" }),
   ]);
   if (!product) {
     return {};
   }
 
-  const storeName = storeResult?.store_name?.trim() || tMeta("fallbackStoreName");
+  const storeName = store.store_name?.trim() || tMeta("fallbackStoreName");
   return {
     title: `${product.name} - ${storeName}`,
     description: product.description || product.name,
@@ -74,21 +62,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
   setRequestLocale(locale);
   const activeLocale = locale as Locale;
 
-  const [product, relatedProductsResult, storeResult] = await Promise.all([
+  const [product, relatedProducts, store] = await Promise.all([
     getStorefrontProductDetail(slug),
-    getStorefrontRelatedProducts(slug).catch((error) => {
-      logProductPageDependencyFailure("related-products", slug, error);
-      return [];
-    }),
-    getStorefrontStorePublic().catch((error) => {
-      logProductPageDependencyFailure("store-public", slug, error);
-      return null;
-    }),
+    getStorefrontRelatedProducts(slug),
+    getStorefrontStorePublic(),
   ]);
   if (!product) {
     notFound();
   }
-  const relatedProducts = relatedProductsResult;
 
   const tDetail = await getTranslations("productDetail");
   const productName = product.name;
@@ -102,7 +83,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       : null;
   const descriptionBullets = splitProductDescriptionBullets(product.description ?? "");
   const extraDetailLines = buildProductExtraDetailLines(
-    storeResult?.extra_field_schema ?? [],
+    store.extra_field_schema,
     product.extra_data,
   );
   const hasDescription = descriptionBullets.length > 0;
