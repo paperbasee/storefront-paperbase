@@ -180,12 +180,6 @@ export function getProductDetail(identifier: string) {
   });
 }
 
-export function getRelatedProducts(identifier: string) {
-  return paperbaseGet<PaperbaseProductListItem[]>(`products/${identifier}/related/`, {
-    next: { revalidate: 60 },
-  });
-}
-
 export function searchProducts(q: string, page?: number) {
   return paperbaseGet<PaginatedResponse<PaperbaseProductListItem>>("products/search/", {
     query: { q, page },

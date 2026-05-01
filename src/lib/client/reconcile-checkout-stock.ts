@@ -8,7 +8,16 @@ import type { ProductDetail } from "@/types/product";
 
 /** Matches `POST /api/v1/orders/` line quantity cap (STOREFRONT_INTEGRATION §7.16). */
 const API_MAX_QTY = 1000;
-const RECONCILE_CACHE_TTL_MS = 60_000;
+const RECONCILE_CACHE_TTL_MS = 120_000;
+const RECONCILE_CACHE_MAX_AGE_MS = 120_000;
+
+function isFreshCacheEntry(entry: { fetchedAt?: number; expiresAt: number }): boolean {
+  const now = Date.now();
+  if (typeof entry.fetchedAt === "number") {
+    return now - entry.fetchedAt < RECONCILE_CACHE_MAX_AGE_MS;
+  }
+  return entry.expiresAt > now;
+}
 
 function productRequestId(item: CartItem): string {
   return item.product_slug ?? item.product_public_id;
@@ -77,7 +86,7 @@ export async function reconcileCheckoutStock(
     if (!line) continue;
     const id = productRequestId(line);
     const cached = readProductDetailCacheEntry(id);
-    if (cached && cached.expiresAt > Date.now()) {
+    if (cached && isFreshCacheEntry(cached)) {
       detailByPid.set(pid, cached.data);
       continue;
     }

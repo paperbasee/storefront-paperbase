@@ -11,7 +11,8 @@ export async function GET(_req: Request, { params }: RouteParams) {
   return new Response(JSON.stringify(product), {
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+      "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+      Vary: "Authorization",
     },
   });
 }

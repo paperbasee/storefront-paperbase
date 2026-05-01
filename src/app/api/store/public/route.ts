@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
     return new Response(JSON.stringify(store), {
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        Vary: "Authorization",
       },
     });
   } catch (error) {

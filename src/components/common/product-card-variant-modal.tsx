@@ -284,6 +284,7 @@ export function ProductCardVariantModal({ product, variant = "default" }: Props)
       const seeded = peekProductDetailCache(product.slug);
       if (seeded) {
         setDetail(seeded);
+        return;
       }
       const data = await getProductDetailCached(product.slug);
       setDetail(data);
@@ -321,6 +322,7 @@ export function ProductCardVariantModal({ product, variant = "default" }: Props)
       const seeded = peekProductDetailCache(product.slug);
       if (seeded) {
         setDetail(seeded);
+        return;
       }
       fetchDetail();
     }

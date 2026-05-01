@@ -5,6 +5,7 @@ const DEFAULT_TTL_MS = 60_000;
 
 type CacheEntry = {
   data: ProductDetail;
+  fetchedAt: number;
   expiresAt: number;
 };
 
@@ -20,7 +21,8 @@ export function peekProductDetailCache(slug: string): ProductDetail | null {
 }
 
 export function upsertProductDetailCache(slug: string, detail: ProductDetail, ttlMs = DEFAULT_TTL_MS): void {
-  cache.set(slug, { data: detail, expiresAt: Date.now() + ttlMs });
+  const now = Date.now();
+  cache.set(slug, { data: detail, fetchedAt: now, expiresAt: now + ttlMs });
 }
 
 export function readProductDetailCacheEntry(slug: string): CacheEntry | null {

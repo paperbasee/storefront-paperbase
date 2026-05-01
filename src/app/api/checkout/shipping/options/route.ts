@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
     return new Response(JSON.stringify(options), {
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        Vary: "Authorization",
       },
     });
   } catch (error) {

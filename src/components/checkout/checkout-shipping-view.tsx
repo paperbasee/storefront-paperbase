@@ -195,6 +195,7 @@ export function CheckoutShippingView() {
   const [stockAdjustedHint, setStockAdjustedHint] = useState<string | null>(null);
   const shippingOptionsCacheRef = useRef(new Map<string, PaperbaseShippingOption[]>());
   const shippingOptionsInFlightRef = useRef(new Map<string, Promise<PaperbaseShippingOption[]>>());
+  const hasFiredInitiateRef = useRef(false);
 
   const cartItems = useMemo(
     () =>
@@ -238,7 +239,7 @@ export function CheckoutShippingView() {
   }, []);
 
   useEffect(() => {
-    if (!hydrated || checkoutItems.length === 0) {
+    if (!hydrated || checkoutItems.length === 0 || hasFiredInitiateRef.current) {
       return;
     }
     triggerInitiateCheckout({
@@ -249,7 +250,8 @@ export function CheckoutShippingView() {
         item_price: Number(item.price),
       })),
     });
-  }, [hydrated, checkoutItems, checkoutSubtotal, finalTotal]);
+    hasFiredInitiateRef.current = true;
+  }, [hydrated, checkoutItems, checkoutSubtotal]);
 
   useEffect(() => {
     let mounted = true;
