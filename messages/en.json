@@ -436,6 +436,8 @@
   "errors": {
     "title": "This page didn’t load",
     "description": "That’s on us, not you. Please try again in a moment—most of the time a quick refresh fixes it.",
+    "rateLimitedTitle": "Too many requests",
+    "rateLimitedDescription": "We’re getting a lot of traffic right now. Please wait a moment and try again.",
     "detailsSummary": "Technical details",
     "detailsHint": "If this keeps happening, sharing this text with support can help.",
     "digestLabel": "Reference"

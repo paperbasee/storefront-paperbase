@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
+import { PaperbaseApiError } from "@/lib/api/paperbase-errors";
 
 type ErrorProps = {
   error: Error & { digest?: string };
@@ -13,6 +14,35 @@ type ErrorProps = {
 export default function ErrorPage({ error, reset }: ErrorProps) {
   const t = useTranslations("errors");
   const states = useTranslations("states");
+
+  const handleRetry = () => {
+    // `reset()` retries rendering, but the browser may keep the same navigation state.
+    // A hard reload guarantees a fresh request after transient API errors (e.g. 429).
+    reset();
+    window.location.reload();
+  };
+
+  if (error instanceof PaperbaseApiError && error.status === 429) {
+    return (
+      <PageContainer>
+        <div className="flex min-h-[70vh] w-full items-center justify-center py-10">
+          <div className="card mx-auto flex w-full max-w-xl flex-col items-center space-y-5 border-border/70 bg-muted/25 text-center">
+          <div className="space-y-2">
+            <h1 className="text-xl font-semibold tracking-tight text-text">
+              {t("rateLimitedTitle")}
+            </h1>
+            <p className="text-sm leading-relaxed text-text/80">
+              {t("rateLimitedDescription")}
+            </p>
+          </div>
+          <Button variant="secondary" size="md" type="button" onClick={handleRetry}>
+            {states("retry")}
+          </Button>
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
 
   const technical =
     typeof error.message === "string" && error.message.trim().length > 0
@@ -26,7 +56,8 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
 
   return (
     <PageContainer>
-      <div className="card mx-auto mt-8 flex w-full max-w-xl flex-col items-center space-y-5 border-border/70 bg-muted/25 text-center">
+      <div className="flex min-h-[70vh] w-full items-center justify-center py-10">
+        <div className="card mx-auto flex w-full max-w-xl flex-col items-center space-y-5 border-border/70 bg-muted/25 text-center">
         <div className="space-y-2">
           <h1 className="text-xl font-semibold tracking-tight text-text">{t("title")}</h1>
           <p className="text-sm leading-relaxed text-text/80">{t("description")}</p>
@@ -54,9 +85,10 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
           </details>
         ) : null}
 
-        <Button variant="secondary" size="md" type="button" onClick={reset}>
+        <Button variant="secondary" size="md" type="button" onClick={handleRetry}>
           {states("retry")}
         </Button>
+        </div>
       </div>
     </PageContainer>
   );
