@@ -155,7 +155,7 @@ export function DesktopCategoryMegaNav({
                   key={category.id}
                   className={cn(
                     "group flex min-h-9 shrink-0 items-stretch rounded-md",
-                    expandable && "hover:bg-card focus-within:bg-card",
+                    expandable && "hover:bg-card has-[a:focus-visible]:bg-card",
                     isOpen &&
                       expandable &&
                       "relative z-[35] -my-2 rounded-none bg-card py-2 !shadow-none ring-0",
@@ -175,7 +175,7 @@ export function DesktopCategoryMegaNav({
                         "cursor-pointer transition-[color,text-decoration-color]",
                         isOpen
                           ? "rounded-none text-card-foreground decoration-transparent"
-                          : "text-header-foreground/90 underline decoration-transparent decoration-1 underline-offset-8 group-hover:text-card-foreground group-hover:decoration-card-foreground/50 group-focus-within:text-card-foreground group-focus-within:decoration-card-foreground/50",
+                          : "text-header-foreground/90 underline decoration-transparent decoration-1 underline-offset-8 group-hover:text-card-foreground group-hover:decoration-card-foreground/50 group-has-[a:focus-visible]:text-card-foreground group-has-[a:focus-visible]:decoration-card-foreground/50",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
                         isOpen && "focus-visible:ring-primary/20",
                       )}
