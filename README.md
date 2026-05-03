@@ -21,7 +21,7 @@ Create a `.env.local` (not committed) with:
 |----------|----------|-------------|
 | `PAPERBASE_API_URL` | Yes | Full API base URL, e.g. `http://localhost:8000/api/v1` or `https://api.paperbase.me/api/v1`. |
 | `PAPERBASE_PUBLISHABLE_KEY` | Yes | Storefront publishable key (must start with `ak_pk_`). |
-| `NEXT_PUBLIC_SITE_URL` | For cache warming / revalidation | Production storefront origin, e.g. `https://yourstore.com` (no trailing slash). Used by `npm run warm-cache` and `/api/revalidate`. |
+| `NEXT_PUBLIC_SITE_URL` | For cache warming / revalidation | Production storefront **origin** only: scheme + host, no path or trailing slash (e.g. `https://www.yourstore.com` if that is your primary domain after redirects). Used by `npm run warm-cache` and `/api/revalidate`. |
 
 Copy [`.env.example`](.env.example) to `.env.local` and fill in your key. In local development, `tracker.js` calls are proxied through `/api/tracker` (no extra env vars). Client `apiFetch` targets same-origin `/api/v1/*`, matching the Paperbase API path prefix.
 
