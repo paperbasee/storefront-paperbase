@@ -6,6 +6,8 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 
+export const revalidate = 86400;
+
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans", preload: false });
 
 

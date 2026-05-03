@@ -17,6 +17,8 @@ import { getActivePopup } from "@/lib/server/paperbase";
 import { getTrackerScriptSrc } from "@/lib/server/tracking";
 import { getStorefrontStorePublic } from "@/lib/storefront";
 
+export const revalidate = 86400;
+
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700", "800"],
   style: ["normal", "italic"],
