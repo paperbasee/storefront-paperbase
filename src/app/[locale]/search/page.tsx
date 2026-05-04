@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils";
 import { getStorefrontSearchResults } from "@/lib/products";
 import { getStorefrontTheme } from "@/lib/theme/getTheme";
 
+/** Theme `card_variant` is chosen server-side; locale layout uses long ISR — force fresh RSC per request. */
+export const dynamic = "force-dynamic";
+
 /** Storefront API default page size for `GET /products/search/`. */
 const PRODUCT_SEARCH_PAGE_SIZE = 24;
 

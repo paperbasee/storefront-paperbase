@@ -22,6 +22,9 @@ import {
 import { getStorefrontTheme } from "@/lib/theme/getTheme";
 import { getStorefrontStorePublic } from "@/lib/storefront";
 
+/** Theme `card_variant` is chosen server-side; locale layout uses long ISR — force fresh RSC per request. */
+export const dynamic = "force-dynamic";
+
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };

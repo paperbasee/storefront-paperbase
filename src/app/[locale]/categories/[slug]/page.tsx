@@ -9,6 +9,9 @@ import { listProducts } from "@/lib/server/paperbase";
 import { getStorefrontCategoryBySlug } from "@/lib/products";
 import { getStorefrontTheme } from "@/lib/theme/getTheme";
 
+/** Theme `card_variant` is chosen server-side; locale layout uses long ISR — force fresh RSC per request. */
+export const dynamic = "force-dynamic";
+
 type CategoryPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };

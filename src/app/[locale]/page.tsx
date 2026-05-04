@@ -11,6 +11,9 @@ import { getStorefrontTheme } from "@/lib/theme/getTheme";
 import { getStorefrontBanners } from "@/lib/storefront";
 import type { PaperbaseBanner } from "@/types/paperbase";
 
+/** Theme `card_variant` is chosen server-side; locale layout uses long ISR — force fresh RSC per request. */
+export const dynamic = "force-dynamic";
+
 function bannerHasAnyImage(banner: PaperbaseBanner) {
   return Boolean(banner.image_url) || banner.images.some((item) => Boolean(item.image_url));
 }
