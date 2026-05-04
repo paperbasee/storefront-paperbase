@@ -188,11 +188,11 @@
     "checkOut": "চেকআউট করুন"
   },
   "checkout": {
-    "metaTitle": "চেকআউট",
+    "metaTitle": "Checkout",
     "metaDescription": "আপনার শিপিং তথ্য দিন এবং অর্ডার পর্যালোচনা করুন।",
-    "paymentMetaTitle": "পেমেন্ট",
+    "paymentMetaTitle": "Payment",
     "paymentMetaDescription": "ক্যাশ অন ডেলিভারি বা বিকাশ/নগদে পেমেন্ট করুন।",
-    "orderSuccessMetaTitle": "অর্ডার নিশ্চিত হয়েছে",
+    "orderSuccessMetaTitle": "Order Success",
     "orderSuccessMetaDescription": "ধন্যবাদ — আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে।",
     "back": "ফিরুন",
     "shippingAddress": "ডেলিভারি ঠিকানা",
@@ -203,10 +203,12 @@
     "each": "প্রতি",
     "firstNamePlaceholder": "নামের প্রথম অংশ",
     "lastNamePlaceholder": "নামের শেষ অংশ",
+    "fullName": "পূর্ণ নাম",
+    "fullNamePlaceholder": "পূর্ণ নাম",
     "emailPlaceholder": "you@example.com",
     "phonePlaceholder": "01XXXXXXXXX",
-    "thanaPlaceholder": "যেমন: ধানমণ্ডি, মিরপুর",
-    "districtPlaceholder": "যেমন: ঢাকা, চট্টগ্রাম",
+    "thanaPlaceholder": "আপনার শহর/থানা লিখুন",
+    "districtPlaceholder": "আপনার জেলা লিখুন",
     "addressPlaceholder": "রাস্তা, এলাকা, পোস্টাল কোড",
     "firstName": "নামের প্রথম অংশ",
     "lastName": "নামের শেষ অংশ",
@@ -332,6 +334,7 @@
     "errorShippingZonesLoad": "শিপিং জোন লোড করা যায়নি।",
     "errorShippingZoneOptionsLoad": "এই জোনের শিপিং লোড করা যায়নি।",
     "errorShippingZoneRequired": "একটি শিপিং জোন বেছে নিন।",
+    "errorFullNameRequired": "আপনার পূর্ণ নাম লিখুন।",
     "errorMissingCheckoutDetails": "চেকআউট তথ্য পাওয়া যায়নি। শিপিংয়ে ফিরে যান।"
   },
   "orderPayment": {

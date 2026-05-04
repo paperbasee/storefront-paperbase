@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { CheckoutShippingView } from "@/components/checkout/checkout-shipping-view";
 import { PageContainer } from "@/components/layout/page-container";
 import { routing, type Locale } from "@/i18n/routing";
+import { getStorefrontStorePublic } from "@/lib/storefront";
+import type { CustomerFormVariant } from "@/types/paperbase";
 
 type PageProps = {
   params: Promise<{ locale: string }>;
@@ -32,10 +34,15 @@ export default async function CheckoutPage({ params }: PageProps) {
 
   setRequestLocale(locale);
 
+  const store = await getStorefrontStorePublic();
+  const rawVariant = store.checkout_settings?.customer_form_variant;
+  const customerFormVariant: CustomerFormVariant =
+    rawVariant === "minimal" ? "minimal" : "extended";
+
   return (
     <div className="min-h-screen overflow-x-clip bg-card">
       <PageContainer>
-        <CheckoutShippingView />
+        <CheckoutShippingView customerFormVariant={customerFormVariant} />
       </PageContainer>
     </div>
   );

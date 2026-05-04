@@ -15,7 +15,11 @@ import { getCheckoutCartItems, useCartStore } from "@/lib/store/cart-store";
 import { cn } from "@/lib/utils";
 import { Link, useRouter, type Locale } from "@/i18n/routing";
 import type { CartItem } from "@/types/cart";
-import type { PaperbaseShippingOption, PaperbaseShippingZone } from "@/types/paperbase";
+import type {
+  CustomerFormVariant,
+  PaperbaseShippingOption,
+  PaperbaseShippingZone,
+} from "@/types/paperbase";
 import type { ProductPrepaymentType } from "@/types/product";
 
 import {
@@ -176,7 +180,12 @@ function areSummaryItemsEqual(
   );
 }
 
-export function CheckoutShippingView() {
+export function CheckoutShippingView({
+  customerFormVariant = "extended",
+}: {
+  customerFormVariant?: CustomerFormVariant;
+}) {
+  const variant = customerFormVariant ?? "extended";
   const t = useTranslations("checkout");
   const tCart = useTranslations("cart");
   const tStates = useTranslations("states");
@@ -439,22 +448,38 @@ export function CheckoutShippingView() {
       return;
     }
     const formData = new FormData(form);
-    const shipping_name = `${String(formData.get("firstName") || "").trim()} ${String(
-      formData.get("lastName") || "",
-    ).trim()}`.trim();
+    if (variant === "minimal") {
+      const fullName = String(formData.get("fullName") || "").trim();
+      if (!fullName) {
+        setErrorText(t("errorFullNameRequired"));
+        return;
+      }
+    }
     const phone = String(formData.get("phone") || "").trim();
+    const district = String(formData.get("district") || "").trim();
+
+    const shipping_name =
+      variant === "minimal"
+        ? String(formData.get("fullName") ?? "").trim()
+        : `${String(formData.get("firstName") || "").trim()} ${String(
+            formData.get("lastName") || "",
+          ).trim()}`.trim();
+
     const addressLine = String(formData.get("shippingAddress") || "").trim();
     const thana = String(formData.get("thana") || "").trim();
-    const shipping_address = [addressLine, thana].filter(Boolean).join(", ");
+    const shipping_address =
+      variant === "minimal"
+        ? String(formData.get("thana") ?? "").trim()
+        : [addressLine, thana].filter(Boolean).join(", ");
+
     const email = String(formData.get("email") || "").trim();
-    const district = String(formData.get("district") || "").trim();
 
     const draft: CheckoutDraft = {
       shipping_zone_public_id: selectedZone,
       shipping_method_public_id: selectedMethod || undefined,
       shipping_name,
       phone,
-      email: email || undefined,
+      email: variant === "minimal" ? undefined : email || undefined,
       shipping_address,
       district: district || undefined,
       products: cartItems,
@@ -573,61 +598,86 @@ export function CheckoutShippingView() {
               {t("customerInfoTitle")}
             </h1>
             <div className="mt-6 grid gap-5">
-              <div className="grid gap-5 sm:grid-cols-2">
+              {variant === "extended" ? (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <label className="grid gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {t("firstName")}
+                      <span className="text-accent"> *</span>
+                    </span>
+                    <input
+                      className={inputClass}
+                      name="firstName"
+                      required
+                      autoComplete="given-name"
+                      placeholder={t("firstNamePlaceholder")}
+                    />
+                  </label>
+                  <label className="grid gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {t("lastName")}
+                      <span className="text-accent"> *</span>
+                    </span>
+                    <input
+                      className={inputClass}
+                      name="lastName"
+                      required
+                      autoComplete="family-name"
+                      placeholder={t("lastNamePlaceholder")}
+                    />
+                  </label>
+                </div>
+              ) : (
                 <label className="grid gap-2">
                   <span className="text-sm font-medium text-foreground">
-                    {t("firstName")}
+                    {t("fullName")}
                     <span className="text-accent"> *</span>
                   </span>
                   <input
                     className={inputClass}
-                    name="firstName"
+                    name="fullName"
                     required
-                    autoComplete="given-name"
-                    placeholder={t("firstNamePlaceholder")}
+                    autoComplete="name"
+                    placeholder={t("fullNamePlaceholder")}
                   />
                 </label>
+              )}
+              {variant === "extended" ? (
                 <label className="grid gap-2">
-                  <span className="text-sm font-medium text-foreground">
-                    {t("lastName")}
-                    <span className="text-accent"> *</span>
-                  </span>
+                  <span className="text-sm font-medium text-foreground">{t("email")}</span>
                   <input
                     className={inputClass}
-                    name="lastName"
-                    required
-                    autoComplete="family-name"
-                    placeholder={t("lastNamePlaceholder")}
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder={t("emailPlaceholder")}
                   />
                 </label>
-              </div>
-              <label className="grid gap-2">
-                <span className="text-sm font-medium text-foreground">{t("email")}</span>
-                <input
-                  className={inputClass}
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder={t("emailPlaceholder")}
-                />
-              </label>
+              ) : null}
               <div className="grid min-w-0 gap-2">
                 <span className="text-sm font-medium text-foreground">
                   {t("phone")}
                   <span className="text-accent"> *</span>
                 </span>
                 <div className="flex min-w-0 gap-2">
-                  <input type="hidden" name="dial" value="+880" />
-                  <span
+                  {variant === "extended" ? (
+                    <>
+                      <input type="hidden" name="dial" value="+880" />
+                      <span
+                        className={cn(
+                          inputClass,
+                          "inline-flex max-w-[7.5rem] shrink-0 cursor-default select-none items-center text-muted-foreground sm:max-w-[8.5rem]",
+                        )}
+                      >
+                        {t("dialOption_bd")}
+                      </span>
+                    </>
+                  ) : null}
+                  <input
                     className={cn(
                       inputClass,
-                      "inline-flex max-w-[7.5rem] shrink-0 cursor-default select-none items-center text-muted-foreground sm:max-w-[8.5rem]",
+                      variant === "extended" ? "min-w-0 flex-1" : "w-full",
                     )}
-                  >
-                    {t("dialOption_bd")}
-                  </span>
-                  <input
-                    className={cn(inputClass, "min-w-0 flex-1")}
                     name="phone"
                     type="tel"
                     required
@@ -636,51 +686,88 @@ export function CheckoutShippingView() {
                     inputMode="numeric"
                     autoComplete="tel-national"
                     placeholder={t("phonePlaceholder")}
-                    aria-label={`${t("dialOption_bd")} ${t("phone")}`}
+                    aria-label={
+                      variant === "extended"
+                        ? `${t("dialOption_bd")} ${t("phone")}`
+                        : t("phone")
+                    }
                   />
                 </div>
               </div>
-              <div className="grid gap-5 sm:grid-cols-2">
+              {variant === "extended" ? (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <label className="grid gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {t("thana")}
+                      <span className="text-accent"> *</span>
+                    </span>
+                    <input
+                      className={inputClass}
+                      name="thana"
+                      required
+                      autoComplete="address-line2"
+                      placeholder={t("thanaPlaceholder")}
+                    />
+                  </label>
+                  <label className="grid gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {t("district")}
+                      <span className="text-accent"> *</span>
+                    </span>
+                    <input
+                      className={inputClass}
+                      name="district"
+                      required
+                      autoComplete="address-level1"
+                      placeholder={t("districtPlaceholder")}
+                    />
+                  </label>
+                </div>
+              ) : (
+                <>
+                  <label className="grid gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {t("thana")}
+                      <span className="text-accent"> *</span>
+                    </span>
+                    <input
+                      className={inputClass}
+                      name="thana"
+                      required
+                      autoComplete="address-line2"
+                      placeholder={t("thanaPlaceholder")}
+                    />
+                  </label>
+                  <label className="grid gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {t("district")}
+                      <span className="text-accent"> *</span>
+                    </span>
+                    <input
+                      className={inputClass}
+                      name="district"
+                      required
+                      autoComplete="address-level1"
+                      placeholder={t("districtPlaceholder")}
+                    />
+                  </label>
+                </>
+              )}
+              {variant === "extended" ? (
                 <label className="grid gap-2">
                   <span className="text-sm font-medium text-foreground">
-                    {t("thana")}
+                    {t("addressField")}
                     <span className="text-accent"> *</span>
                   </span>
-                  <input
-                    className={inputClass}
-                    name="thana"
+                  <textarea
+                    className={cn(inputClass, "min-h-[5.5rem] resize-y")}
+                    name="shippingAddress"
+                    rows={3}
                     required
-                    autoComplete="address-line2"
-                    placeholder={t("thanaPlaceholder")}
+                    placeholder={t("addressPlaceholder")}
                   />
                 </label>
-                <label className="grid gap-2">
-                  <span className="text-sm font-medium text-foreground">
-                    {t("district")}
-                    <span className="text-accent"> *</span>
-                  </span>
-                  <input
-                    className={inputClass}
-                    name="district"
-                    required
-                    autoComplete="address-level1"
-                    placeholder={t("districtPlaceholder")}
-                  />
-                </label>
-              </div>
-              <label className="grid gap-2">
-                <span className="text-sm font-medium text-foreground">
-                  {t("addressField")}
-                  <span className="text-accent"> *</span>
-                </span>
-                <textarea
-                  className={cn(inputClass, "min-h-[5.5rem] resize-y")}
-                  name="shippingAddress"
-                  rows={3}
-                  required
-                  placeholder={t("addressPlaceholder")}
-                />
-              </label>
+              ) : null}
             </div>
           </section>
 

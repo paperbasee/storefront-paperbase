@@ -203,6 +203,8 @@
     "each": "each",
     "firstNamePlaceholder": "First name",
     "lastNamePlaceholder": "Last name",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Full name",
     "emailPlaceholder": "you@example.com",
     "phonePlaceholder": "01XXXXXXXXX",
     "thanaPlaceholder": "e.g. Dhanmondi, Mirpur",
@@ -332,6 +334,7 @@
     "errorShippingZonesLoad": "Failed to load shipping zones.",
     "errorShippingZoneOptionsLoad": "Failed to load shipping for this zone.",
     "errorShippingZoneRequired": "Please choose a shipping zone.",
+    "errorFullNameRequired": "Please enter your full name.",
     "errorMissingCheckoutDetails": "Missing checkout details. Please go back to shipping."
   },
   "orderPayment": {

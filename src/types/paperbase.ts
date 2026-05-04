@@ -4,6 +4,8 @@ export type PaperbaseOrderStatus = "pending" | "payment_pending" | "confirmed" |
 export type PaperbasePaymentStatus = "none" | "submitted" | "verified" | "failed";
 export type PaperbasePrepaymentType = "none" | "delivery_only" | "full";
 
+export type CustomerFormVariant = "minimal" | "extended";
+
 export type PaginatedResponse<T> = {
   count: number;
   next: string | null;
@@ -55,6 +57,9 @@ export type PaperbaseStorePublic = {
     instagram: string;
     whatsapp: string;
     tiktok: string;
+  };
+  checkout_settings?: {
+    customer_form_variant: CustomerFormVariant;
   };
 };
 

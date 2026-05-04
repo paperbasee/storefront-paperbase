@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     ) {
       return Response.json({ detail: "Invalid payment method." }, { status: 400 });
     }
-    if (!orderPayload?.shipping_zone_public_id || !orderPayload.shipping_name || !orderPayload.phone || !orderPayload.shipping_address) {
+    if (!orderPayload?.shipping_zone_public_id || !orderPayload.shipping_name || !orderPayload.phone) {
       return Response.json({ detail: "Missing required order fields." }, { status: 400 });
     }
     if (!orderPayload.products || !Array.isArray(orderPayload.products) || orderPayload.products.length === 0) {
