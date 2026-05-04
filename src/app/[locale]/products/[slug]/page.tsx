@@ -8,7 +8,7 @@ import { ProductDetailBuySection } from "@/components/product/product-detail-buy
 import { ProductDetailSkuRow } from "@/components/product/product-detail-sku-row";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { VariantSelectionProvider } from "@/components/product/product-variant-selection";
-import { CARD_REGISTRY } from "@/components/common/cardRegistry";
+import { StorefrontProductCard } from "@/components/common/StorefrontProductCard";
 import { PageContainer } from "@/components/layout/page-container";
 import { Link, routing, type Locale } from "@/i18n/routing";
 import { categoryDisplayName } from "@/lib/category-display";
@@ -19,11 +19,7 @@ import {
   getStorefrontProductDetail,
   getStorefrontProductSlugs,
 } from "@/lib/products";
-import { getStorefrontTheme } from "@/lib/theme/getTheme";
 import { getStorefrontStorePublic } from "@/lib/storefront";
-
-/** Theme `card_variant` is chosen server-side; locale layout uses long ISR — force fresh RSC per request. */
-export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
@@ -65,16 +61,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
   setRequestLocale(locale);
   const activeLocale = locale as Locale;
 
-  const [product, store, theme] = await Promise.all([
+  const [product, store] = await Promise.all([
     getStorefrontProductDetail(slug),
     getStorefrontStorePublic(),
-    getStorefrontTheme(),
   ]);
   if (!product) {
     notFound();
   }
 
-  const CardComponent = theme?.card_variant === "shelf" ? CARD_REGISTRY.shelf : CARD_REGISTRY.classic;
   const tDetail = await getTranslations({ locale: activeLocale, namespace: "productDetail" });
   const productName = product.name;
   const unitPrice = product.price;
@@ -259,7 +253,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {product.related_products.map((related, productIdx) => (
-                <CardComponent key={related.public_id} product={related} aosDelay={(productIdx + 1) * 100} />
+                <StorefrontProductCard
+                  key={related.public_id}
+                  product={related}
+                  locale={activeLocale}
+                  aosDelay={(productIdx + 1) * 100}
+                />
               ))}
             </div>
           </PageContainer>

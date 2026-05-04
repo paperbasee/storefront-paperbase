@@ -1,18 +1,14 @@
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { CARD_REGISTRY } from "@/components/common/cardRegistry";
+import { StorefrontProductCard } from "@/components/common/StorefrontProductCard";
 import { PageContainer } from "@/components/layout/page-container";
 import { BannerImageSlider } from "@/components/marketing/banner-image-slider";
 import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
 import { getStorefrontHomeCategorySections } from "@/lib/products";
-import { getStorefrontTheme } from "@/lib/theme/getTheme";
 import { getStorefrontBanners } from "@/lib/storefront";
 import type { PaperbaseBanner } from "@/types/paperbase";
-
-/** Theme `card_variant` is chosen server-side; locale layout uses long ISR — force fresh RSC per request. */
-export const dynamic = "force-dynamic";
 
 function bannerHasAnyImage(banner: PaperbaseBanner) {
   return Boolean(banner.image_url) || banner.images.some((item) => Boolean(item.image_url));
@@ -67,16 +63,13 @@ function FullBleedBannerBlock({
 }
 
 export default async function HomePage() {
-  const [tHome, categorySections, homeTopBanners, homeBottomBanners, locale, theme] = await Promise.all([
+  const [tHome, categorySections, homeTopBanners, homeBottomBanners, locale] = await Promise.all([
     getTranslations("home"),
     getStorefrontHomeCategorySections(),
     getStorefrontBanners("home_top"),
     getStorefrontBanners("home_bottom"),
     getLocale(),
-    getStorefrontTheme(),
   ]);
-
-  const CardComponent = theme?.card_variant === "shelf" ? CARD_REGISTRY.shelf : CARD_REGISTRY.classic;
 
   const heroBanner = homeTopBanners.find((banner) => bannerHasAnyImage(banner)) ?? null;
   const hasBottomBanners = homeBottomBanners.length > 0;
@@ -131,7 +124,7 @@ export default async function HomePage() {
                   </header>
                   <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     {section.products.map((product, productIdx) => (
-                      <CardComponent
+                      <StorefrontProductCard
                         key={product.public_id}
                         product={product}
                         locale={locale as Locale}

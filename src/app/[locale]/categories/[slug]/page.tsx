@@ -1,16 +1,12 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
-import { CARD_REGISTRY } from "@/components/common/cardRegistry";
+import { StorefrontProductCard } from "@/components/common/StorefrontProductCard";
 import { PageContainer } from "@/components/layout/page-container";
 import { routing, type Locale } from "@/i18n/routing";
 import { categoryDisplayName } from "@/lib/category-display";
 import { listProducts } from "@/lib/server/paperbase";
 import { getStorefrontCategoryBySlug } from "@/lib/products";
-import { getStorefrontTheme } from "@/lib/theme/getTheme";
-
-/** Theme `card_variant` is chosen server-side; locale layout uses long ISR — force fresh RSC per request. */
-export const dynamic = "force-dynamic";
 
 type CategoryPageProps = {
   params: Promise<{ locale: string; slug: string }>;
@@ -23,14 +19,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
   setRequestLocale(locale);
 
-  const [tCategories, category, products, theme] = await Promise.all([
+  const [tCategories, category, products] = await Promise.all([
     getTranslations("categories"),
     getStorefrontCategoryBySlug(slug),
     listProducts({ category: slug }),
-    getStorefrontTheme(),
   ]);
-
-  const CardComponent = theme?.card_variant === "shelf" ? CARD_REGISTRY.shelf : CARD_REGISTRY.classic;
 
   const description = typeof category.description === "string" ? category.description.trim() : "";
   const hasProducts = products.results.length > 0;
@@ -52,7 +45,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         {hasProducts ? (
           <div className="mt-5 grid grid-cols-2 gap-4 sm:gap-6 md:mt-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {products.results.map((product, productIdx) => (
-              <CardComponent
+              <StorefrontProductCard
                 key={product.public_id}
                 locale={locale as Locale}
                 aosDelay={(productIdx + 1) * 100}

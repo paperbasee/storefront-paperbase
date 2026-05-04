@@ -1,4 +1,6 @@
-import { getLocale } from "next-intl/server";
+"use client";
+
+import { useLocale } from "next-intl";
 
 import { ProductCardAddButton } from "@/components/common/product-card-add-button";
 import { ProductCardGallery } from "@/components/common/product-card-gallery";
@@ -15,8 +17,9 @@ type ProductCardProps = {
   aosDelay?: number;
 };
 
-export async function ProductCard({ product, locale: localeProp, priority, aosDelay = 100 }: ProductCardProps) {
-  const locale = localeProp ?? ((await getLocale()) as Locale);
+export function ProductCard({ product, locale: localeProp, priority, aosDelay = 100 }: ProductCardProps) {
+  const intlLocale = useLocale() as Locale;
+  const locale = localeProp ?? intlLocale;
   const href = `/products/${product.slug}`;
   const imageUrls = getProductCardImageUrls(product);
   const isDiscounted =
