@@ -102,6 +102,8 @@
   "productCard": {
     "addToCart": "Add to Cart",
     "addToCartAria": "Add {name} to cart",
+    "orderNow": "Order now",
+    "orderNowAria": "Order {name} now",
     "sold": "{count, plural, one {# sold} other {# sold}}",
     "locations": {
       "royalSapphireKettle": "Bangladesh, Dhaka",
@@ -178,6 +180,12 @@
     "clear": "Clear cart",
     "checkout": "Proceed to checkout",
     "viewCart": "View cart"
+  },
+  "addToCartDialog": {
+    "dialogAria": "Added to cart",
+    "title": "Item added to your cart",
+    "viewCartWithCount": "View cart ({count})",
+    "checkOut": "Check out"
   },
   "checkout": {
     "metaTitle": "Checkout",

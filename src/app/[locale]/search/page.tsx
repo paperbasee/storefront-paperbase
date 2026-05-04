@@ -1,12 +1,13 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
-import { ProductCard } from "@/components/common/product-card";
+import { CARD_REGISTRY } from "@/components/common/cardRegistry";
 import { PageContainer } from "@/components/layout/page-container";
 import { buttonVariants } from "@/components/ui/button";
 import { Link, routing, type Locale } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { getStorefrontSearchResults } from "@/lib/products";
+import { getStorefrontTheme } from "@/lib/theme/getTheme";
 
 /** Storefront API default page size for `GET /products/search/`. */
 const PRODUCT_SEARCH_PAGE_SIZE = 24;
@@ -38,10 +39,13 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   const page = Math.max(1, Math.floor(Number(pageRaw)) || 1);
   const queryReady = q.length >= 2;
 
-  const [t, searchData] = await Promise.all([
+  const [t, searchData, theme] = await Promise.all([
     getTranslations("search"),
     queryReady ? getStorefrontSearchResults(q, page) : Promise.resolve(null),
+    getStorefrontTheme(),
   ]);
+
+  const CardComponent = theme?.card_variant === "shelf" ? CARD_REGISTRY.shelf : CARD_REGISTRY.classic;
 
   const totalPages =
     searchData && searchData.count > 0
@@ -123,7 +127,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
         {queryReady && hasProductHits ? (
           <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {searchData!.products.map((product, productIdx) => (
-              <ProductCard
+              <CardComponent
                 key={product.public_id}
                 product={product}
                 locale={locale as Locale}

@@ -102,6 +102,8 @@
   "productCard": {
     "addToCart": "কার্টে যোগ করুন",
     "addToCartAria": "{name} কার্টে যোগ করুন",
+    "orderNow": "এখনই অর্ডার করুন",
+    "orderNowAria": "{name} — এখনই অর্ডার করুন",
     "sold": "{count, plural, one {# টি বিক্রিত} other {# টি বিক্রিত}}",
     "locations": {
       "royalSapphireKettle": "বাংলাদেশ, ঢাকা",
@@ -126,7 +128,7 @@
     "selectOptionsToOrder": "অপশন নির্বাচন করুন",
     "nowLabel": "এখন",
     "wasLabel": "আগে ছিল",
-    "priceDiscount": "(-{percent}%)",
+    "priceDiscount": "(-{percent}% ছাড়)",
     "colorLabel": "রঙ",
     "sizeLabel": "সাইজ",
     "colorName_cream": "ক্রিম",
@@ -137,7 +139,7 @@
     "swatchGraphite": "গ্রাফাইট ফিনিশ",
     "sectionProductDetails": "পণ্যের বিবরণ",
     "sectionExtraDetails": "অতিরিক্ত তথ্য",
-    "relatedProductsTitle": "আপনি পছন্দ করতে পারেন",
+    "relatedProductsTitle": "আপনি এগুলোও পছন্দ করতে পারেন",
     "breadcrumbAria": "ব্রেডক্রাম্ব",
     "trustFastDelivery": "দ্রুত ডেলিভারি",
     "trustEasyReturns": "সহজ রিটার্ন",
@@ -179,6 +181,12 @@
     "checkout": "চেকআউটে যান",
     "viewCart": "কার্ট দেখুন"
   },
+  "addToCartDialog": {
+    "dialogAria": "কার্টে যোগ হয়েছে",
+    "title": "পণ্যটি আপনার কার্টে যোগ করা হয়েছে",
+    "viewCartWithCount": "কার্ট দেখুন ({count})",
+    "checkOut": "চেকআউট করুন"
+  },
   "checkout": {
     "metaTitle": "চেকআউট",
     "metaDescription": "আপনার শিপিং তথ্য দিন এবং অর্ডার পর্যালোচনা করুন।",
@@ -196,7 +204,7 @@
     "firstNamePlaceholder": "নামের প্রথম অংশ",
     "lastNamePlaceholder": "নামের শেষ অংশ",
     "emailPlaceholder": "you@example.com",
-    "phonePlaceholder": "০১XXXXXXXXX",
+    "phonePlaceholder": "01XXXXXXXXX",
     "thanaPlaceholder": "যেমন: ধানমণ্ডি, মিরপুর",
     "districtPlaceholder": "যেমন: ঢাকা, চট্টগ্রাম",
     "addressPlaceholder": "রাস্তা, এলাকা, পোস্টাল কোড",
@@ -206,7 +214,7 @@
     "phone": "ফোন নম্বর",
     "thana": "শহর / থানা",
     "district": "জেলা",
-    "dialOption_bd": "বিডি +৮৮",
+    "dialOption_bd": "BD +88",
     "freeShipping": "বিনামূল্যে শিপিং",
     "freeShippingDays": "৭–২০ দিন",
     "expressShipping": "এক্সপ্রেস শিপিং",

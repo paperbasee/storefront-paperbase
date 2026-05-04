@@ -24,7 +24,10 @@ function readLocalFallback(): ThemeConfig | undefined {
       return undefined;
     }
     if (!parsed.palette || !parsed.resolved_palette) return undefined;
-    return parsed;
+    return {
+      ...parsed,
+      card_variant: typeof parsed.card_variant === "string" ? parsed.card_variant : "classic",
+    };
   } catch {
     return undefined;
   }
@@ -59,6 +62,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return {
       palette: data.palette,
       palette_version: data.palette_version,
+      card_variant: typeof data.card_variant === "string" ? data.card_variant : "classic",
       resolved_palette: data.resolved_palette,
     };
   }, [data]);
@@ -67,9 +71,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (data?.resolved_palette) {
       applyTheme(data.resolved_palette);
       try {
+        const stored = localStorage.getItem(THEME_LS_KEY);
         const storedVersion = localStorage.getItem(THEME_LS_VERSION_KEY);
-        if (storedVersion !== data.palette_version) {
-          localStorage.setItem(THEME_LS_KEY, JSON.stringify(data));
+        const next = JSON.stringify(data);
+        if (stored !== next || storedVersion !== data.palette_version) {
+          localStorage.setItem(THEME_LS_KEY, next);
           localStorage.setItem(THEME_LS_VERSION_KEY, data.palette_version);
         }
       } catch {

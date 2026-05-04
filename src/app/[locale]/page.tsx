@@ -1,12 +1,13 @@
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { ProductCard } from "@/components/common/product-card";
+import { CARD_REGISTRY } from "@/components/common/cardRegistry";
 import { PageContainer } from "@/components/layout/page-container";
 import { BannerImageSlider } from "@/components/marketing/banner-image-slider";
 import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
 import { getStorefrontHomeCategorySections } from "@/lib/products";
+import { getStorefrontTheme } from "@/lib/theme/getTheme";
 import { getStorefrontBanners } from "@/lib/storefront";
 import type { PaperbaseBanner } from "@/types/paperbase";
 
@@ -63,13 +64,16 @@ function FullBleedBannerBlock({
 }
 
 export default async function HomePage() {
-  const [tHome, categorySections, homeTopBanners, homeBottomBanners, locale] = await Promise.all([
+  const [tHome, categorySections, homeTopBanners, homeBottomBanners, locale, theme] = await Promise.all([
     getTranslations("home"),
     getStorefrontHomeCategorySections(),
     getStorefrontBanners("home_top"),
     getStorefrontBanners("home_bottom"),
     getLocale(),
+    getStorefrontTheme(),
   ]);
+
+  const CardComponent = theme?.card_variant === "shelf" ? CARD_REGISTRY.shelf : CARD_REGISTRY.classic;
 
   const heroBanner = homeTopBanners.find((banner) => bannerHasAnyImage(banner)) ?? null;
   const hasBottomBanners = homeBottomBanners.length > 0;
@@ -124,7 +128,7 @@ export default async function HomePage() {
                   </header>
                   <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     {section.products.map((product, productIdx) => (
-                      <ProductCard
+                      <CardComponent
                         key={product.public_id}
                         product={product}
                         locale={locale as Locale}

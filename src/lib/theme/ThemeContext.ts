@@ -27,6 +27,7 @@ export interface ResolvedPalette {
 export interface ThemeConfig {
   palette: string
   palette_version: string
+  card_variant: string
   resolved_palette: ResolvedPalette
 }
 

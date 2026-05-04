@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { Check, X } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
-import { Link, type Locale } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 import { useAddToCartDialogStore } from "@/lib/store/add-to-cart-dialog-store";
 import { useCart } from "@/hooks/useCart";
 import { resolveStorefrontImageUrl, storefrontImageUnoptimized } from "@/lib/storefront-image";
@@ -35,7 +35,7 @@ function formatVariantLine(details: string | undefined): string {
 export function AddToCartDialogHost() {
   const common = useTranslations("common");
   const tCheckout = useTranslations("checkout");
-  const locale = useLocale() as Locale;
+  const t = useTranslations("addToCartDialog");
 
   const open = useAddToCartDialogStore((s) => s.open);
   const product = useAddToCartDialogStore((s) => s.product);
@@ -53,7 +53,7 @@ export function AddToCartDialogHost() {
       className="fixed inset-0 z-[120] flex items-end justify-center bg-black/60 p-3 sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
-      aria-label="Added to cart"
+      aria-label={t("dialogAria")}
       onClick={closeDialog}
     >
       <div
@@ -77,7 +77,7 @@ export function AddToCartDialogHost() {
             <span className="inline-flex size-6 items-center justify-center rounded-full bg-success">
               <Check className="size-4 text-white" strokeWidth={2.5} aria-hidden />
             </span>
-            <span>Item added to your cart</span>
+            <span>{t("title")}</span>
           </div>
 
           <div className="mt-5 flex items-start gap-4">
@@ -108,7 +108,7 @@ export function AddToCartDialogHost() {
                 "w-full justify-center rounded-none border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              View cart ({itemCount})
+              {t("viewCartWithCount", { count: itemCount })}
             </Link>
 
             <Link
@@ -119,7 +119,7 @@ export function AddToCartDialogHost() {
                 "w-full justify-center rounded-none",
               )}
             >
-              Check out
+              {t("checkOut")}
             </Link>
 
             <Button

@@ -8,7 +8,7 @@ import { ProductDetailBuySection } from "@/components/product/product-detail-buy
 import { ProductDetailSkuRow } from "@/components/product/product-detail-sku-row";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { VariantSelectionProvider } from "@/components/product/product-variant-selection";
-import { ProductCard } from "@/components/common/product-card";
+import { CARD_REGISTRY } from "@/components/common/cardRegistry";
 import { PageContainer } from "@/components/layout/page-container";
 import { Link, routing, type Locale } from "@/i18n/routing";
 import { categoryDisplayName } from "@/lib/category-display";
@@ -19,6 +19,7 @@ import {
   getStorefrontProductDetail,
   getStorefrontProductSlugs,
 } from "@/lib/products";
+import { getStorefrontTheme } from "@/lib/theme/getTheme";
 import { getStorefrontStorePublic } from "@/lib/storefront";
 
 type PageProps = {
@@ -61,15 +62,17 @@ export default async function ProductDetailPage({ params }: PageProps) {
   setRequestLocale(locale);
   const activeLocale = locale as Locale;
 
-  const [product, store] = await Promise.all([
+  const [product, store, theme] = await Promise.all([
     getStorefrontProductDetail(slug),
     getStorefrontStorePublic(),
+    getStorefrontTheme(),
   ]);
   if (!product) {
     notFound();
   }
 
-  const tDetail = await getTranslations("productDetail");
+  const CardComponent = theme?.card_variant === "shelf" ? CARD_REGISTRY.shelf : CARD_REGISTRY.classic;
+  const tDetail = await getTranslations({ locale: activeLocale, namespace: "productDetail" });
   const productName = product.name;
   const unitPrice = product.price;
   const discountPercent =
@@ -130,7 +133,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <li aria-hidden>
                 <ChevronRight className="size-3.5 text-muted-foreground" strokeWidth={2.5} />
               </li>
-              <li className="max-w-[min(100%,28rem)] truncate font-thin text-muted-foreground">
+              <li className="max-w-[min(100%,28rem)] truncate font-normal text-muted-foreground">
                 {productName}
               </li>
             </ol>
@@ -149,7 +152,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 {categoryLabel}
               </p>
 
-              <h1 className="text-2xl font-thin leading-snug tracking-tight text-foreground sm:text-3xl">
+              <h1 className="text-2xl font-normal leading-snug tracking-tight text-foreground sm:text-3xl">
                 {productName}
               </h1>
 
@@ -248,12 +251,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
       {product.related_products.length > 0 ? (
         <section className="border-t border-border bg-card py-10 md:py-12">
           <PageContainer>
-            <h2 className="mb-8 text-center text-2xl font-thin tracking-tight text-foreground/90 md:mb-10 md:text-3xl">
+            <h2 className="mb-8 text-center text-2xl font-normal tracking-tight text-foreground/90 md:mb-10 md:text-3xl">
               {tDetail("relatedProductsTitle")}
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {product.related_products.map((related, productIdx) => (
-                <ProductCard key={related.public_id} product={related} aosDelay={(productIdx + 1) * 100} />
+                <CardComponent key={related.public_id} product={related} aosDelay={(productIdx + 1) * 100} />
               ))}
             </div>
           </PageContainer>

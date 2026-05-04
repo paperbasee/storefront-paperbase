@@ -19,6 +19,8 @@ export async function ProductCard({ product, locale: localeProp, priority, aosDe
   const locale = localeProp ?? ((await getLocale()) as Locale);
   const href = `/products/${product.slug}`;
   const imageUrls = getProductCardImageUrls(product);
+  const isDiscounted =
+    product.original_price != null && Number(product.original_price) > Number(product.price);
 
   return (
     <article
@@ -44,8 +46,15 @@ export async function ProductCard({ product, locale: localeProp, priority, aosDe
           </h3>
         </Link>
 
-        <div className="mt-2 text-[18px] font-normal leading-snug text-muted-foreground [font-size:clamp(11px,1.7vw,18px)]">
-          {formatMoney(product.price, locale)}
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+          <span className="font-normal tabular-nums text-foreground [font-size:clamp(18px,6.25vw,24px)]">
+            {formatMoney(product.price, locale)}
+          </span>
+          {isDiscounted ? (
+            <span className="text-header line-through [font-size:clamp(10px,1.5vw,14px)]">
+              {formatMoney(product.original_price!, locale)}
+            </span>
+          ) : null}
         </div>
       </div>
     </article>

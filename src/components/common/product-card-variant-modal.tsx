@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingBag, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useState } from "react";
@@ -21,11 +21,12 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";
 import { useAddToCartDialogStore } from "@/lib/store/add-to-cart-dialog-store";
 import type { Product, ProductDetail } from "@/types/product";
-import type { Locale } from "@/i18n/routing";
+import { useRouter, type Locale } from "@/i18n/routing";
 
 type Props = {
   product: Product;
   variant?: "default" | "card" | "icon";
+  afterAddBehavior?: "dialog" | "checkout";
 };
 
 // ─── Inner picker — must live inside VariantSelectionProvider ──────────────
@@ -33,13 +34,15 @@ type Props = {
 type PickerProps = {
   detail: ProductDetail;
   onAdded: () => void;
+  afterAddBehavior: "dialog" | "checkout";
 };
 
-const VariantPicker = memo(function VariantPicker({ detail, onAdded }: PickerProps) {
+const VariantPicker = memo(function VariantPicker({ detail, onAdded, afterAddBehavior }: PickerProps) {
   const t = useTranslations("variantModal");
   const tDetail = useTranslations("productDetail");
   const productT = useTranslations("product");
   const locale = useLocale() as Locale;
+  const router = useRouter();
   const { addItem } = useCart();
   const openAddToCartDialog = useAddToCartDialogStore((s) => s.openDialog);
   const { selectedValues, setSelectedValue, selectedVariant, optionsByAttribute } =
@@ -72,11 +75,15 @@ const VariantPicker = memo(function VariantPicker({ detail, onAdded }: PickerPro
       value: Number(selectedVariant.price),
     });
     onAdded();
-    openAddToCartDialog({
-      name: detail.name,
-      image_url: detail.image_url,
-      variant_details: selectedVariant.options.map((o) => `${o.attribute_name}: ${o.value}`).join(", "),
-    });
+    if (afterAddBehavior === "checkout") {
+      router.push("/checkout");
+    } else {
+      openAddToCartDialog({
+        name: detail.name,
+        image_url: detail.image_url,
+        variant_details: selectedVariant.options.map((o) => `${o.attribute_name}: ${o.value}`).join(", "),
+      });
+    }
   }
 
   const imageSrc = resolveStorefrontImageUrl(detail.image_url);
@@ -240,7 +247,11 @@ function VariantPickerSkeleton() {
 
 // ─── Public component ──────────────────────────────────────────────────────
 
-export function ProductCardVariantModal({ product, variant = "default" }: Props) {
+export function ProductCardVariantModal({
+  product,
+  variant = "default",
+  afterAddBehavior = "dialog",
+}: Props) {
   const t = useTranslations("variantModal");
   const productT = useTranslations("product");
   const tCard = useTranslations("productCard");
@@ -251,7 +262,7 @@ export function ProductCardVariantModal({ product, variant = "default" }: Props)
 
   const isCard = variant === "card";
   const isIcon = variant === "icon";
-  const triggerLabel = isCard ? tCard("addToCart") : productT("addToCart");
+  const triggerLabel = isCard ? tCard("orderNow") : productT("addToCart");
   const disabled = product.stock_status === "out_of_stock";
   const prefetchDetail = useCallback(() => {
     if (Array.isArray(product.variants) && product.variants.length > 0) {
@@ -343,7 +354,9 @@ export function ProductCardVariantModal({ product, variant = "default" }: Props)
           disabled={disabled}
           onMouseEnter={prefetchDetail}
           onTouchStart={prefetchDetail}
-          aria-label={disabled ? productT("outOfStock") : triggerLabel}
+          aria-label={
+            disabled ? productT("outOfStock") : isCard ? tCard("orderNowAria", { name: product.name }) : triggerLabel
+          }
           className={cn(
             "flex cursor-pointer items-center justify-center transition-colors duration-200 ease-out",
             isIcon
@@ -360,11 +373,13 @@ export function ProductCardVariantModal({ product, variant = "default" }: Props)
         >
           {isIcon ? (
             <Heart className="size-5 shrink-0" strokeWidth={1.75} aria-hidden />
+          ) : isCard ? (
+            <ShoppingBag className="size-[18px] shrink-0 stroke-[2]" aria-hidden />
           ) : (
             <ShoppingCart
               className={cn(
                 "shrink-0 stroke-[2]",
-                isCard ? "size-[18px]" : "size-3.5 sm:size-4 md:size-4",
+                "size-3.5 sm:size-4 md:size-4",
               )}
               aria-hidden
             />
@@ -394,7 +409,11 @@ export function ProductCardVariantModal({ product, variant = "default" }: Props)
             <VariantPickerSkeleton />
           ) : (
             <VariantSelectionProvider variants={detail.variants}>
-              <VariantPicker detail={detail} onAdded={() => setOpen(false)} />
+              <VariantPicker
+                detail={detail}
+                onAdded={() => setOpen(false)}
+                afterAddBehavior={afterAddBehavior}
+              />
             </VariantSelectionProvider>
           )}
         </div>
