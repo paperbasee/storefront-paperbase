@@ -72,3 +72,70 @@ export async function purgeCloudflareUrls(urls: string[]): Promise<void> {
     });
   }
 }
+
+/**
+ * Purges URL prefixes from Cloudflare edge (e.g. all `/en/products/*` HTML).
+ * Never throws.
+ */
+export async function purgeCloudflarePrefixes(prefixes: string[]): Promise<void> {
+  if (prefixes.length === 0) {
+    return;
+  }
+
+  const zoneId = process.env.CF_ZONE_ID?.trim();
+  const apiToken = process.env.CF_API_TOKEN?.trim();
+
+  if (!zoneId || !apiToken) {
+    console.warn("[cloudflare-purge] prefixes_skipped_missing_credentials", {
+      reason: !zoneId ? "missing_CF_ZONE_ID" : "missing_CF_API_TOKEN",
+      prefixCount: prefixes.length,
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prefixes }),
+      },
+    );
+
+    let body: CloudflareApiResult = {};
+    try {
+      body = (await response.json()) as CloudflareApiResult;
+    } catch {
+      console.warn("[cloudflare-purge] prefixes_invalid_json_response", {
+        status: response.status,
+        prefixes,
+      });
+      return;
+    }
+
+    if (body.success !== true) {
+      console.warn("[cloudflare-purge] prefixes_api_unsuccessful", {
+        status: response.status,
+        errors: body.errors,
+        messages: body.messages,
+        prefixes,
+      });
+      return;
+    }
+
+    console.info("[cloudflare-purge] prefixes_purged", {
+      prefixCount: prefixes.length,
+      prefixes,
+      success: true,
+    });
+  } catch (err) {
+    console.warn("[cloudflare-purge] prefixes_network_error", {
+      error: err instanceof Error ? err.message : String(err),
+      prefixes,
+    });
+  }
+}

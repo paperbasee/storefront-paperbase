@@ -2,7 +2,7 @@ import { timingSafeEqual } from "crypto";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
-import { purgeCloudflareUrls } from "@/lib/server/cloudflare-purge";
+import { purgeCloudflarePrefixes, purgeCloudflareUrls } from "@/lib/server/cloudflare-purge";
 
 const LOCALES = ["en", "bn"] as const;
 
@@ -23,6 +23,13 @@ type WebhookPayload = {
   type: WebhookEntityType;
   slug?: string;
   store_public_id: string;
+};
+
+type RevalidationResult = {
+  revalidatedPaths: string[];
+  purgePaths: string[];
+  /** Full origin URLs for Cloudflare prefix purge (e.g. bust all cached product HTML). */
+  purgePrefixes: string[];
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -72,7 +79,7 @@ function absoluteUrls(pathSuffixes: string[]): string[] {
   return pathSuffixes.map((p) => `${base}${p.startsWith("/") ? "" : "/"}${p}`);
 }
 
-function revalidateProduct(slug: string): { revalidatedPaths: string[]; purgePaths: string[] } {
+function revalidateProduct(slug: string): RevalidationResult {
   const revalidatedPaths: string[] = [];
   const purgePaths: string[] = [];
   for (const loc of LOCALES) {
@@ -92,10 +99,10 @@ function revalidateProduct(slug: string): { revalidatedPaths: string[]; purgePat
     revalidatedPaths.push(home);
     purgePaths.push(home);
   }
-  return { revalidatedPaths, purgePaths };
+  return { revalidatedPaths, purgePaths, purgePrefixes: [] };
 }
 
-function revalidateCategory(slug: string): { revalidatedPaths: string[]; purgePaths: string[] } {
+function revalidateCategory(slug: string): RevalidationResult {
   const revalidatedPaths: string[] = [];
   const purgePaths: string[] = [];
   for (const loc of LOCALES) {
@@ -110,10 +117,10 @@ function revalidateCategory(slug: string): { revalidatedPaths: string[]; purgePa
     revalidatedPaths.push(home);
     purgePaths.push(home);
   }
-  return { revalidatedPaths, purgePaths };
+  return { revalidatedPaths, purgePaths, purgePrefixes: [] };
 }
 
-function revalidateHomepagesOnly(): { revalidatedPaths: string[]; purgePaths: string[] } {
+function revalidateHomepagesOnly(): RevalidationResult {
   const revalidatedPaths: string[] = [];
   const purgePaths: string[] = [];
   for (const loc of LOCALES) {
@@ -122,10 +129,10 @@ function revalidateHomepagesOnly(): { revalidatedPaths: string[]; purgePaths: st
     revalidatedPaths.push(home);
     purgePaths.push(home);
   }
-  return { revalidatedPaths, purgePaths };
+  return { revalidatedPaths, purgePaths, purgePrefixes: [] };
 }
 
-function revalidateBlog(slug: string): { revalidatedPaths: string[]; purgePaths: string[] } {
+function revalidateBlog(slug: string): RevalidationResult {
   const revalidatedPaths: string[] = [];
   const purgePaths: string[] = [];
   for (const loc of LOCALES) {
@@ -140,32 +147,37 @@ function revalidateBlog(slug: string): { revalidatedPaths: string[]; purgePaths:
     revalidatedPaths.push(indexPath);
     purgePaths.push(indexPath);
   }
-  return { revalidatedPaths, purgePaths };
+  return { revalidatedPaths, purgePaths, purgePrefixes: [] };
 }
 
-function revalidateStore(): { revalidatedPaths: string[]; purgePaths: string[] } {
+function revalidateStore(): RevalidationResult {
   revalidatePath("/", "layout");
   const revalidatedPaths = ["/ (root layout)"];
   const purgePaths: string[] = [];
+  const purgePrefixes: string[] = [];
+  const base = normalizeSiteBase();
   for (const loc of LOCALES) {
     const home = `/${loc}`;
     purgePaths.push(home);
+    if (base) {
+      purgePrefixes.push(`${base}/${loc}/products`);
+      purgePrefixes.push(`${base}/${loc}/categories`);
+      purgePrefixes.push(`${base}/${loc}/search`);
+    }
   }
-  return { revalidatedPaths, purgePaths };
+  return { revalidatedPaths, purgePaths, purgePrefixes };
 }
 
-function runRevalidation(
-  payload: WebhookPayload,
-): { revalidatedPaths: string[]; purgePaths: string[] } {
+function runRevalidation(payload: WebhookPayload): RevalidationResult {
   switch (payload.type) {
     case "product": {
       const slug = payload.slug;
-      if (!slug) return { revalidatedPaths: [], purgePaths: [] };
+      if (!slug) return { revalidatedPaths: [], purgePaths: [], purgePrefixes: [] };
       return revalidateProduct(slug);
     }
     case "category": {
       const slug = payload.slug;
-      if (!slug) return { revalidatedPaths: [], purgePaths: [] };
+      if (!slug) return { revalidatedPaths: [], purgePaths: [], purgePrefixes: [] };
       return revalidateCategory(slug);
     }
     case "banner":
@@ -174,7 +186,7 @@ function runRevalidation(
       return revalidateHomepagesOnly();
     case "blog": {
       const slug = payload.slug;
-      if (!slug) return { revalidatedPaths: [], purgePaths: [] };
+      if (!slug) return { revalidatedPaths: [], purgePaths: [], purgePrefixes: [] };
       return revalidateBlog(slug);
     }
     case "store":
@@ -239,7 +251,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   try {
-    const { revalidatedPaths, purgePaths } = runRevalidation(payload);
+    const { revalidatedPaths, purgePaths, purgePrefixes } = runRevalidation(payload);
 
     const base = normalizeSiteBase();
     if (!base) {
@@ -251,6 +263,18 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const purgeUrls = absoluteUrls(purgePaths);
+
+    void purgeCloudflarePrefixes(purgePrefixes).then(() => {
+      console.info("[revalidate] cloudflare_prefix_purge_finished", {
+        store_public_id: payload.store_public_id,
+        event: payload.event,
+        type: payload.type,
+        prefixCount: purgePrefixes.length,
+        cloudflareConfigured: Boolean(
+          base && purgePrefixes.length > 0 && process.env.CF_ZONE_ID && process.env.CF_API_TOKEN,
+        ),
+      });
+    });
 
     console.info("[revalidate] revalidated", {
       store_public_id: payload.store_public_id,
