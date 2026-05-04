@@ -434,7 +434,7 @@
     "loading": "Loading product details…",
     "loadError": "Could not load product. Please try again.",
     "retry": "Retry",
-    "addToCart": "Add to Cart",
+    "continue": "Continue",
     "selectAllOptions": "Please select all options",
     "unavailableCombination": "This combination is not available",
     "onlyLeft": "Only {count} left in stock",

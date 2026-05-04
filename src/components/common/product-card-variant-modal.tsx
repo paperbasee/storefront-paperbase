@@ -213,8 +213,7 @@ const VariantPicker = memo(function VariantPicker({ detail, onAdded, afterAddBeh
           "disabled:cursor-not-allowed disabled:opacity-50",
         )}
       >
-        <ShoppingCart className="size-4 shrink-0" strokeWidth={2} aria-hidden />
-        {outOfStock ? productT("outOfStock") : t("addToCart")}
+        {outOfStock ? productT("outOfStock") : t("continue")}
       </button>
     </div>
   );
