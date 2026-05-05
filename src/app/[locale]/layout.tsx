@@ -18,6 +18,11 @@ import { getActivePopup } from "@/lib/server/paperbase";
 import { getTrackerScriptSrc } from "@/lib/server/tracking";
 import { getStorefrontStorePublic } from "@/lib/storefront";
 
+import messagesEn from "../../../messages/en.json";
+import messagesBn from "../../../messages/bn.json";
+
+const MESSAGES = { en: messagesEn, bn: messagesBn };
+
 export const revalidate = 86400;
 
 const poppins = Poppins({
@@ -71,10 +76,11 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     notFound();
   }
 
+  setRequestLocale(locale);
+
   const [store, popup] = await Promise.all([getStorefrontStorePublic(), getActivePopup()]);
   const activeLocale: Locale = store.language === "bn" ? "bn" : "en";
-  setRequestLocale(activeLocale);
-  const messages = (await import(`../../../messages/${activeLocale}.json`)).default;
+  const messages = MESSAGES[activeLocale];
   const { publishableKey } = getServerPaperbaseConfig();
   const trackerSrc = store.tracking_enabled ? getTrackerScriptSrc(store) : "";
   const runtimePublishableKey = store.tracking_enabled ? publishableKey : "";
