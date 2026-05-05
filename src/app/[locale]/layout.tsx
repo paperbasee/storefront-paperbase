@@ -52,7 +52,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  const { locale } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
   if (!hasLocale(routing.locales, locale)) {
     return {};
   }
@@ -71,7 +72,8 @@ export function generateStaticParams() {
 }
 
 export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
-  const { locale } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }

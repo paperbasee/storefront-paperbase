@@ -26,7 +26,8 @@ export default async function NotFoundPage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale: rawLocale } = await params;
+  const resolvedParams = await params;
+  const rawLocale = resolvedParams?.locale ?? "en";
   const locale = rawLocale as Locale;
   setRequestLocale(locale);
 

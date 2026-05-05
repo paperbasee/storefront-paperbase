@@ -7,11 +7,13 @@ type PageProps = {
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
   return placeholderMetadata(locale, "contactUs");
 }
 
 export default async function ContactUsPage({ params }: PageProps) {
-  const { locale } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
   return renderPlaceholderPage(locale, "contactUs");
 }

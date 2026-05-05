@@ -67,7 +67,8 @@ export default async function HomePage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
   setRequestLocale(locale);
   
   const [tHome, categorySections, homeTopBanners, homeBottomBanners] = await Promise.all([

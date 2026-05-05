@@ -33,7 +33,9 @@ export async function generateStaticParams(): Promise<Array<{ locale: string; sl
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale, slug } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
+  const slug = resolvedParams?.slug ?? "";
   if (!routing.locales.includes(locale as Locale)) {
     return {};
   }
@@ -52,7 +54,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogArticlePage({ params }: PageProps) {
-  const { locale, slug } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
+  const slug = resolvedParams?.slug ?? "";
   if (!routing.locales.includes(locale as Locale)) {
     notFound();
   }

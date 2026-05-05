@@ -10,7 +10,8 @@ type SupportPageProps = {
 };
 
 export default async function SupportPage({ params }: SupportPageProps) {
-  const { locale } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
   if (!routing.locales.includes(locale as Locale)) {
     notFound();
   }

@@ -26,7 +26,8 @@ type SearchPageProps = {
 };
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
-  const { locale } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
   if (!routing.locales.includes(locale as Locale)) {
     notFound();
   }

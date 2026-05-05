@@ -13,7 +13,9 @@ type CategoryPageProps = {
 };
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { locale, slug } = await params;
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale ?? "en";
+  const slug = resolvedParams?.slug ?? "";
   if (!routing.locales.includes(locale as Locale)) {
     notFound();
   }
