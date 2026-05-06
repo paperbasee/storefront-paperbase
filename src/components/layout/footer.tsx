@@ -241,7 +241,7 @@ export async function Footer() {
         </div>
 
         <p className="mt-12 text-center text-sm text-primary-foreground/60">
-          © <FooterYear />, {storeDisplayName}
+          © <FooterYear />, {storeDisplayName} powerd by paperbase
         </p>
       </PageContainer>
     </footer>
