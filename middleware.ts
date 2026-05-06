@@ -20,7 +20,15 @@ function resolveBackendBaseUrl(): string | null {
   return `${origin}/api/v1`;
 }
 
+let _localeCache: { value: StoreLocale; expiresAt: number } | null = null;
+const LOCALE_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 async function resolveStoreLocale(): Promise<StoreLocale | null> {
+  const now = Date.now();
+  if (_localeCache && now < _localeCache.expiresAt) {
+    return _localeCache.value;
+  }
+
   const baseUrl = resolveBackendBaseUrl();
   const publishableKey = process.env.PAPERBASE_PUBLISHABLE_KEY;
   if (!baseUrl || !publishableKey) return null;
@@ -31,18 +39,19 @@ async function resolveStoreLocale(): Promise<StoreLocale | null> {
     const response = await fetch(`${baseUrl}/store/public/`, {
       method: "GET",
       headers: { Authorization: `Bearer ${publishableKey}` },
-      next: { revalidate: 300 },
       signal: controller.signal,
-    }).finally(() => {
-      clearTimeout(timeout);
-    });
+    }).finally(() => clearTimeout(timeout));
+
     if (!response.ok) return null;
     const data = (await response.json()) as { language?: string };
     const locale = (data.language || "").toLowerCase();
-    return isStoreLocale(locale) ? locale : "en";
+    const resolved = isStoreLocale(locale) ? locale : "en";
+
+    _localeCache = { value: resolved, expiresAt: now + LOCALE_CACHE_TTL_MS };
+    return resolved;
   } catch (error) {
     console.error("[i18n] Failed to resolve store locale in middleware.", error);
-    return null;
+    return _localeCache?.value ?? null; // serve stale on error
   }
 }
 

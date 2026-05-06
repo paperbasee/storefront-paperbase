@@ -10,6 +10,8 @@ import { getAllPosts } from "@/lib/blog-data";
 import { DOCUMENT_METADATA_LOCALE } from "@/lib/document-metadata-locale";
 import { resolveStorefrontDocumentBrand } from "@/lib/storefront";
 
+export const revalidate = 300;
+
 type PageProps = {
   params: Promise<{ locale: string }>;
 };

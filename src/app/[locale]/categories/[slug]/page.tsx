@@ -8,6 +8,8 @@ import { categoryDisplayName } from "@/lib/category-display";
 import { listProducts } from "@/lib/server/paperbase";
 import { getStorefrontCategoryBySlug } from "@/lib/products";
 
+export const revalidate = 300;
+
 type CategoryPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { placeholderMetadata, renderPlaceholderPage } from "@/lib/placeholder-route";
 
+export const revalidate = 300;
+
 type PageProps = {
   params: Promise<{ locale: string }>;
 };

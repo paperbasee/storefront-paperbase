@@ -5,6 +5,8 @@ import { SupportTicketForm } from "@/components/support/support-ticket-form";
 import { PageContainer } from "@/components/layout/page-container";
 import { routing, type Locale } from "@/i18n/routing";
 
+export const revalidate = 300;
+
 type SupportPageProps = {
   params: Promise<{ locale: string }>;
 };

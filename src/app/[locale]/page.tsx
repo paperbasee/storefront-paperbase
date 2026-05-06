@@ -10,6 +10,8 @@ import { getStorefrontHomeCategorySections } from "@/lib/products";
 import { getStorefrontBanners } from "@/lib/storefront";
 import type { PaperbaseBanner } from "@/types/paperbase";
 
+export const revalidate = 300;
+
 function bannerHasAnyImage(banner: PaperbaseBanner) {
   return Boolean(banner.image_url) || banner.images.some((item) => Boolean(item.image_url));
 }

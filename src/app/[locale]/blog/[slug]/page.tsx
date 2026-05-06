@@ -23,6 +23,8 @@ import {
 import { formatBlogDateCompact } from "@/lib/blog-format";
 import { resolveStorefrontDocumentBrand } from "@/lib/storefront";
 
+export const revalidate = 300;
+
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };

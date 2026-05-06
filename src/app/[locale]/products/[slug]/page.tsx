@@ -22,6 +22,8 @@ import {
 } from "@/lib/products";
 import { getStorefrontStorePublic } from "@/lib/storefront";
 
+export const revalidate = 300;
+
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
