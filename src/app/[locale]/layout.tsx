@@ -23,7 +23,7 @@ import messagesBn from "../../../messages/bn.json";
 
 const MESSAGES = { en: messagesEn, bn: messagesBn };
 
-export const revalidate = 86400;
+export const revalidate = 300;
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700", "800"],
